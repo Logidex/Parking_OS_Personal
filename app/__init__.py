@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import JWTManager
 from app.extensions import db
@@ -34,6 +34,11 @@ def create_app():
     app.register_blueprint(tickets_bp)
     app.register_blueprint(transacciones_bp)
     app.register_blueprint(reportes_bp)
+    
+    @app.route('/')
+    def index():
+        #Redirige la raiz al login
+        return redirect(url_for('/auth.index'))
     
     with app.app_context():
         db.create_all()
