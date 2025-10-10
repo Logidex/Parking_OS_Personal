@@ -8,27 +8,45 @@
 <div class="content-section">
   <div class="section-header">
     <h2>Lista de Vehículos</h2>
-    <button class="btn-primary" id="btn-nuevo-vehiculo">
-      <i class="fas fa-plus"></i> Nuevo Vehículo
-    </button>
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="buscar-vehiculo" placeholder="Buscar por placa, marca o modelo...">
+      </div>
+      <button class="btn-primary" id="btn-nuevo-vehiculo">
+        <i class="fas fa-plus"></i> Nuevo Vehículo
+      </button>
+    </div>
   </div>
 
+  <!-- Estadísticas mini -->
+  <div class="stats-mini">
+    <div class="stat-mini">
+      <i class="fas fa-car"></i>
+      <div>
+        <span class="stat-label">Total Vehículos</span>
+        <span class="stat-value" id="stat-total">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de vehículos -->
   <div class="table-container">
-    <table>
+    <table id="tabla-vehiculos">
       <thead>
         <tr>
-          <th>ID</th>
           <th>Placa</th>
           <th>Marca</th>
           <th>Modelo</th>
           <th>Color</th>
           <th>Tipo</th>
+          <th>Propietario</th>
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tbody-vehiculos">
         <tr>
-          <td colspan="7" class="no-data">No hay vehículos registrados</td>
+          <td colspan="7" class="no-data">Cargando vehículos...</td>
         </tr>
       </tbody>
     </table>
@@ -39,3 +57,4 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/vehiculos.js') }}"></script>
 {% endblock %}
+
