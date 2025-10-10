@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Parking OS{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="dashboard-container">
+    <nav class="sidebar">
+      <div class="logo">
+        <h2>Parking OS</h2>
+      </div>
+      <ul class="menu">
+        <li class="{% if active_page == 'dashboard' %}active{% endif %}">
+          <a href="/dashboard"><i class="fas fa-home"></i> Inicio</a>
+        </li>
+        <li class="{% if active_page == 'vehiculos' %}active{% endif %}">
+          <a href="/vehiculos"><i class="fas fa-car"></i> Vehículos</a>
+        </li>
+        <li class="{% if active_page == 'espacios' %}active{% endif %}">
+          <a href="/espacios"><i class="fas fa-parking"></i> Espacios</a>
+        </li>
+        <li class="{% if active_page == 'tickets' %}active{% endif %}">
+          <a href="/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a>
+        </li>
+        <li class="{% if active_page == 'transacciones' %}active{% endif %}">
+          <a href="/transacciones"><i class="fas fa-money-bill-wave"></i> Transacciones</a>
+        </li>
+        <li class="{% if active_page == 'reportes' %}active{% endif %}">
+          <a href="/reportes"><i class="fas fa-chart-bar"></i> Reportes</a>
+        </li>
+      </ul>
+      <div class="logout">
+        <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <header>
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        <p>Usuario: <span class="badge">{{ usuario.nombre_usuario }}</span> | Rol: <span class="badge">{{ usuario.rol }}</span></p>
+      </header>
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

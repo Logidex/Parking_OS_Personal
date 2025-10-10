@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes - Parking OS{% endblock %}
+
+{% block page_title %}Reportes y Estadísticas{% endblock %}
+
+{% block content %}
+<div class="content-section">
+  <div class="section-header">
+    <h2>Reportes del Sistema</h2>
+  </div>
+
+  <div class="reportes-grid">
+    <div class="reporte-card">
+      <h3>Ingresos por Período</h3>
+      <p>Genera reportes de ingresos diarios, semanales o mensuales</p>
+      <button class="btn-secondary">Generar</button>
+    </div>
+    
+    <div class="reporte-card">
+      <h3>Ocupación de Espacios</h3>
+      <p>Estadísticas de uso de espacios de estacionamiento</p>
+      <button class="btn-secondary">Generar</button>
+    </div>
+    
+    <div class="reporte-card">
+      <h3>Vehículos Frecuentes</h3>
+      <p>Listado de vehículos con mayor frecuencia de uso</p>
+      <button class="btn-secondary">Generar</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/reportes.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Espacios - Parking OS{% endblock %}
+
+{% block page_title %}Gestión de Espacios{% endblock %}
+
+{% block content %}
+<div class="content-section">
+  <div class="section-header">
+    <h2>Espacios de Estacionamiento</h2>
+    <button class="btn-primary" id="btn-nuevo-espacio">
+      <i class="fas fa-plus"></i> Nuevo Espacio
+    </button>
+  </div>
+
+  <div class="espacios-grid">
+    <p class="no-data">No hay espacios configurados</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/espacios.js') }}"></script>
+{% endblock %}

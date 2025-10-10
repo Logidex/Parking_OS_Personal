@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Tickets - Parking OS{% endblock %}
+
+{% block page_title %}Gestión de Tickets{% endblock %}
+
+{% block content %}
+<div class="content-section">
+  <div class="section-header">
+    <h2>Tickets Activos</h2>
+    <button class="btn-primary" id="btn-nuevo-ticket">
+      <i class="fas fa-plus"></i> Generar Ticket
+    </button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Ticket #</th>
+          <th>Vehículo</th>
+          <th>Espacio</th>
+          <th>Hora Entrada</th>
+          <th>Tiempo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="6" class="no-data">No hay tickets activos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/tickets.js') }}"></script>
+{% endblock %}

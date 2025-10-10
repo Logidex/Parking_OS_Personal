@@ -1,0 +1,28 @@
+:root {
+  --color-11: #040D16;
+  --color-1: #E9F3FB;
+  --color-6: #2486DB;
+  --color-accent: #4B9BE2; /* Puedes ajustar este color para botones */
+}
+
+/* Estilos para el popup */
+.swal-popup-custom {
+  background-color: var(--color-11) !important;
+  color: var(--color-1) !important;
+  border-radius: 8px !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Estilo para el título */
+.swal-title-custom {
+  color: var(--color-accent) !important;
+  font-weight: bold;
+}
+
+/* Estilo botón confirmar */
+.swal-confirm-custom {
+  background-color: var(--color-accent) !important;
+  color: var(--color-1) !important;
+  border-radius: 5px !important;
+  font-weight: bold;
+}
