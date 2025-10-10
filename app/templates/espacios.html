@@ -8,13 +8,90 @@
 <div class="content-section">
   <div class="section-header">
     <h2>Espacios de Estacionamiento</h2>
-    <button class="btn-primary" id="btn-nuevo-espacio">
-      <i class="fas fa-plus"></i> Nuevo Espacio
-    </button>
+    <div class="header-actions">
+      <button class="btn-secondary" id="btn-filtros">
+        <i class="fas fa-filter"></i> Filtros
+      </button>
+      <button class="btn-primary" id="btn-nuevo-espacio">
+        <i class="fas fa-plus"></i> Nuevo Espacio
+      </button>
+    </div>
   </div>
 
-  <div class="espacios-grid">
-    <p class="no-data">No hay espacios configurados</p>
+  <!-- Estadísticas resumidas -->
+  <div class="stats-mini">
+    <div class="stat-mini">
+      <i class="fas fa-parking"></i>
+      <div>
+        <span class="stat-label">Total</span>
+        <span class="stat-value" id="stat-total">0</span>
+      </div>
+    </div>
+    <div class="stat-mini disponible">
+      <i class="fas fa-check-circle"></i>
+      <div>
+        <span class="stat-label">Disponibles</span>
+        <span class="stat-value" id="stat-disponibles">0</span>
+      </div>
+    </div>
+    <div class="stat-mini ocupado">
+      <i class="fas fa-car"></i>
+      <div>
+        <span class="stat-label">Ocupados</span>
+        <span class="stat-value" id="stat-ocupados">0</span>
+      </div>
+    </div>
+    <div class="stat-mini mantenimiento">
+      <i class="fas fa-tools"></i>
+      <div>
+        <span class="stat-label">Mantenimiento</span>
+        <span class="stat-value" id="stat-mantenimiento">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros (inicialmente ocultos) -->
+  <div class="filtros-container" id="filtros-container" style="display: none;">
+    <div class="filtros-grid">
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="filtro-estado">
+          <option value="">Todos</option>
+          <option value="disponible">Disponible</option>
+          <option value="ocupado">Ocupado</option>
+          <option value="mantenimiento">Mantenimiento</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="filtro-tipo">
+          <option value="">Todos</option>
+          <option value="regular">Regular</option>
+          <option value="discapacitado">Discapacitado</option>
+          <option value="moto">Moto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Sección</label>
+        <select id="filtro-seccion">
+          <option value="">Todas</option>
+          <option value="A">Sección A</option>
+          <option value="B">Sección B</option>
+          <option value="C">Sección C</option>
+          <option value="D">Sección D</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button class="btn-primary" id="btn-aplicar-filtros">
+          <i class="fas fa-check"></i> Aplicar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de espacios -->
+  <div class="espacios-grid" id="espacios-grid">
+    <p class="no-data" id="mensaje-vacio">Cargando espacios...</p>
   </div>
 </div>
 {% endblock %}
@@ -22,3 +99,4 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/espacios.js') }}"></script>
 {% endblock %}
+

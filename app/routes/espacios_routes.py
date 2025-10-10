@@ -175,7 +175,44 @@ def cambiar_estado_espacio(espacio_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
-
+    
+@espacios_bp.route('/api/espacios/<int:espacio_id>', methods=['DELETE'])
+@jwt_required()
+def eliminar_espacio(espacio_id):
+    """Eliminar un espacio (solo admin)"""
+    try:
+        usuario_id = int(get_jwt_identity())
+        usuario = Usuario.query.filter_by(id=usuario_id).first()
+        
+        # Verificar que sea admin
+        if not usuario or usuario.rol != 'admin':
+            return jsonify({"error": "No tienes permisos para eliminar espacios"}), 403
+        
+        # Buscar el espacio
+        espacio = Espacio.query.filter_by(id=espacio_id).first()
+        
+        if not espacio:
+            return jsonify({"error": "Espacio no encontrado"}), 404
+        
+        # TODO: Verificar que el espacio no tenga tickets activos
+        # if espacio.tickets_activos:
+        #     return jsonify({"error": "No se puede eliminar un espacio con tickets activos"}), 400
+        
+        # Guardar número para el mensaje
+        numero_espacio = espacio.numero
+        
+        # Eliminar el espacio
+        db.session.delete(espacio)
+        db.session.commit()
+        
+        return jsonify({
+            "mensaje": f"Espacio {numero_espacio} eliminado correctamente"
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Error al eliminar espacio: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @espacios_bp.route('/api/espacios/estadisticas', methods=['GET'])
 @jwt_required()

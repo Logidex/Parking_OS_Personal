@@ -276,3 +276,224 @@ table td {
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
+
+/* ========== ESPACIOS ========== */
+
+/* Estadísticas mini */
+.stats-mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-mini {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #2486DB;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-mini i {
+  font-size: 2rem;
+  color: #2486DB;
+}
+
+.stat-mini.disponible {
+  border-left-color: #28a745;
+}
+
+.stat-mini.disponible i {
+  color: #28a745;
+}
+
+.stat-mini.ocupado {
+  border-left-color: #dc3545;
+}
+
+.stat-mini.ocupado i {
+  color: #dc3545;
+}
+
+.stat-mini.mantenimiento {
+  border-left-color: #ffc107;
+}
+
+.stat-mini.mantenimiento i {
+  color: #ffc107;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #113F67;
+}
+
+/* Header actions */
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Filtros */
+.filtros-container {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.filtros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #113F67;
+  margin-bottom: 0.5rem;
+}
+
+.form-group select,
+.form-group input {
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+/* Grid de espacios */
+.espacios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.espacio-card {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.espacio-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.espacio-card.disponible {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.espacio-card.disponible:hover {
+  border-color: #218838;
+}
+
+.espacio-card.ocupado {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+
+.espacio-card.ocupado:hover {
+  border-color: #c82333;
+}
+
+.espacio-card.mantenimiento {
+  border-color: #ffc107;
+  background: #fffef5;
+}
+
+.espacio-card.mantenimiento:hover {
+  border-color: #e0a800;
+}
+
+.espacio-numero {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #113F67;
+  margin-bottom: 0.5rem;
+}
+
+.espacio-tipo {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.espacio-estado {
+  font-size: 0.75rem;  /* ⬅️ Reducir tamaño de fuente */
+  padding: 0.3rem 0.5rem;  /* ⬅️ Reducir padding */
+  border-radius: 12px;
+  display: inline-block;
+  font-weight: 600;
+  white-space: nowrap;  /* ⬅️ NUEVO: evita saltos de línea */
+  overflow: hidden;
+  text-overflow: ellipsis;  /* ⬅️ NUEVO: agrega ... si es muy largo */
+  max-width: 100%;  /* ⬅️ NUEVO: respeta el ancho de la tarjeta */
+}
+
+.espacio-card.disponible .espacio-estado {
+  background: #28a745;
+  color: white;
+}
+
+.espacio-card.ocupado .espacio-estado {
+  background: #dc3545;
+  color: white;
+}
+
+.espacio-card.mantenimiento .espacio-estado {
+  background: #ffc107;
+  color: #333;
+}
+
+.espacio-icono {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
+.espacio-card.disponible .espacio-icono {
+  color: #28a745;
+}
+
+.espacio-card.ocupado .espacio-icono {
+  color: #dc3545;
+}
+
+.espacio-card.mantenimiento .espacio-icono {
+  color: #ffc107;
+}
+
+/* Mensaje cuando no hay datos */
+.no-data {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+  font-size: 1.1rem;
+}
