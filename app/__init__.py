@@ -42,7 +42,8 @@ def create_app():
     
     with app.app_context():
         db.create_all()
-
+        
+        #Crear usuario admin su no existe
         if not Usuario.query.filter_by(nombre_usuario='admin').first():
             admin = Usuario(
                 nombre_usuario='admin',
@@ -53,6 +54,64 @@ def create_app():
             db.session.add(admin)
             db.session.commit()
             print("✅ Usuario admin creado correctamente")
+            
+        # Crear espacios iniciales si no existen
+        from app.models.espacio import Espacio
+        
+        if Espacio.query.count() == 0:
+            print("Creando espacios iniciales...")
+            espacios_iniciales = []
+            
+            # Seccion A - Espacios regulares (20 espacios)
+            for i in range(1, 21):
+                espacio = Espacio(
+                    numero=f'A-{i:02d}', #A-01, A-02, ..., A-20
+                    tipo='regular',
+                    estado='disponible',
+                    piso=1,
+                    seccion='A'
+                )
+                espacios_iniciales.append(espacio)
+                
+            # Sección B - Espacios regulares (20 espacios)
+            for i in range(1, 21):
+                espacio = Espacio(
+                    numero=f'B-{i:02d}',
+                    tipo='regular',
+                    estado='disponible',
+                    piso=1,
+                    seccion='B'
+                )
+                espacios_iniciales.append(espacio)
+            
+            # Sección C - Espacios para discapacitados (5 espacios)
+            for i in range(1, 6):
+                espacio = Espacio(
+                    numero=f'C-{i:02d}',
+                    tipo='discapacitado',
+                    estado='disponible',
+                    piso=1,
+                    seccion='C'
+                )
+                espacios_iniciales.append(espacio)
+            
+            # Sección D - Espacios para motos (10 espacios)
+            for i in range(1, 11):
+                espacio = Espacio(
+                    numero=f'D-{i:02d}',
+                    tipo='moto',
+                    estado='disponible',
+                    piso=1,
+                    seccion='D'
+                )
+                espacios_iniciales.append(espacio)
+            
+            # Agregar todos los espacios
+            db.session.bulk_save_objects(espacios_iniciales)
+            db.session.commit()
+            print(f"✅ {len(espacios_iniciales)} espacios creados correctamente")
+        else:
+            print(f"ℹ️  Ya existen {Espacio.query.count()} espacios en la base de datos")
     
     print("\n📋 Rutas registradas:")
     for rule in app.url_map.iter_rules():
