@@ -10,12 +10,12 @@ vehiculos_bp = Blueprint('vehiculos', __name__)
 def index():
     try:
         usuario_id = int(get_jwt_identity())
-        usuario = db.session.get(usuario_id)
+        usuario = db.session.get(Usuario, usuario_id)
         
         if not usuario:
-            return redirect(url_for('auth.index'))
+            return redirect(url_for('/auth.index'))
         
         return render_template('vehiculos.html', usuario=usuario, active_page='vehiculos')
     except Exception as e:
         print(f"Error en vehículos: {e}")
-        return redirect(url_for('auth.index'))
+        return redirect(url_for('/auth.index'))
