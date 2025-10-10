@@ -9,9 +9,10 @@ espacios_bp = Blueprint('espacios', __name__)
 @espacios_bp.route('/espacios')
 @jwt_required()
 def index():
+    """Página principal de espacios"""
     try:
         usuario_id = int(get_jwt_identity())
-        usuario = db.session.get(Usuario, usuario_id) 
+        usuario = Usuario.query.filter_by(id=usuario_id).first()
         
         if not usuario:
             return redirect(url_for('auth.index'))
@@ -20,19 +21,16 @@ def index():
     except Exception as e:
         print(f"Error en espacios: {e}")
         return redirect(url_for('auth.index'))
-    
 
-# ===== API ENDPOINTS =====
 
 @espacios_bp.route('/api/espacios', methods=['GET'])
 @jwt_required()
 def listar_espacios():
-    # Listar todos los espacios (API)
+    """Listar todos los espacios (API)"""
     try:
-        # Filtros opcionales
-        estado = request.args.get('estado') # disponible, ocupado, mantenimiento
-        tipo = request.args.get('tipo') # regular, discapacitado, moto
-        seccion = request.args.get('seccion') # A, B, C, D
+        estado = request.args.get('estado')
+        tipo = request.args.get('tipo')
+        seccion = request.args.get('seccion')
         
         query = Espacio.query.filter_by(activo=True)
         
@@ -42,42 +40,45 @@ def listar_espacios():
             query = query.filter_by(tipo=tipo)
         if seccion:
             query = query.filter_by(seccion=seccion)
-            
+        
         espacios = query.order_by(Espacio.numero).all()
         
         return jsonify([espacio.to_dict() for espacio in espacios]), 200
     except Exception as e:
-        return jsonify({"Error": str(e)}), 500
-    
+        print(f"❌ Error al listar espacios: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 @espacios_bp.route('/api/espacios', methods=['POST'])
 @jwt_required()
 def crear_espacio():
     """Crear un nuevo espacio (solo admin)"""
     try:
         usuario_id = int(get_jwt_identity())
-        usuario = Usuario.query.get(usuario_id)
         
-        # Verificar que sea admin
+        # ✅ USAR SOLO ESTA SINTAXIS (funciona en TODAS las versiones)
+        usuario = Usuario.query.filter_by(id=usuario_id).first()
+        
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
         if usuario.rol != 'admin':
             return jsonify({"error": "No tienes permisos para crear espacios"}), 403
         
         data = request.get_json()
         
-        # Validar datos requeridos
-        if not data.get('numero'):
+        if not data or not data.get('numero'):
             return jsonify({"error": "El número de espacio es requerido"}), 400
         
-        # Verificar que no exista duplicado
         if Espacio.query.filter_by(numero=data['numero']).first():
             return jsonify({"error": f"El espacio {data['numero']} ya existe"}), 409
         
-        # Crear espacio
         nuevo_espacio = Espacio(
             numero=data['numero'],
             tipo=data.get('tipo', 'regular'),
             estado=data.get('estado', 'disponible'),
             piso=data.get('piso', 1),
-            seccion=data.get('seccion', data['numero'][0])  # Primera letra del número
+            seccion=data.get('seccion', data['numero'][0] if data['numero'] else 'A')
         )
         
         db.session.add(nuevo_espacio)
@@ -87,8 +88,12 @@ def crear_espacio():
             "mensaje": "Espacio creado exitosamente",
             "espacio": nuevo_espacio.to_dict()
         }), 201
+        
     except Exception as e:
         db.session.rollback()
+        print(f"❌ Error al crear espacio: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
@@ -97,7 +102,8 @@ def crear_espacio():
 def obtener_espacio(espacio_id):
     """Obtener un espacio específico"""
     try:
-        espacio = Espacio.query.get(espacio_id)
+        # ✅ Sintaxis universal
+        espacio = Espacio.query.filter_by(id=espacio_id).first()
         
         if not espacio:
             return jsonify({"error": "Espacio no encontrado"}), 404
@@ -113,19 +119,18 @@ def actualizar_espacio(espacio_id):
     """Actualizar un espacio (solo admin)"""
     try:
         usuario_id = int(get_jwt_identity())
-        usuario = Usuario.query.get(usuario_id)
+        usuario = Usuario.query.filter_by(id=usuario_id).first()
         
-        if usuario.rol != 'admin':
+        if not usuario or usuario.rol != 'admin':
             return jsonify({"error": "No tienes permisos"}), 403
         
-        espacio = Espacio.query.get(espacio_id)
+        espacio = Espacio.query.filter_by(id=espacio_id).first()
         
         if not espacio:
             return jsonify({"error": "Espacio no encontrado"}), 404
         
         data = request.get_json()
         
-        # Actualizar campos permitidos
         if 'tipo' in data:
             espacio.tipo = data['tipo']
         if 'estado' in data:
@@ -147,9 +152,9 @@ def actualizar_espacio(espacio_id):
 @espacios_bp.route('/api/espacios/<int:espacio_id>/cambiar-estado', methods=['PATCH'])
 @jwt_required()
 def cambiar_estado_espacio(espacio_id):
-    """Cambiar estado de un espacio (disponible/ocupado/mantenimiento)"""
+    """Cambiar estado de un espacio"""
     try:
-        espacio = Espacio.query.get(espacio_id)
+        espacio = Espacio.query.filter_by(id=espacio_id).first()
         
         if not espacio:
             return jsonify({"error": "Espacio no encontrado"}), 404
@@ -191,4 +196,5 @@ def estadisticas_espacios():
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
         

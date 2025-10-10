@@ -8,6 +8,7 @@ def app():
     """Creacion de instancia de la app para testing"""
     app = create_app()
     app.config['TESTING'] = True
+    app.config['DEBUG'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' #BD en memoria
     app.config['JWT_COOKIE_CSRF_PROTECT'] = False
     
