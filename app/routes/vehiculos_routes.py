@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.usuario import Usuario
+from app.extensions import db
 
 vehiculos_bp = Blueprint('vehiculos', __name__)
 
@@ -9,7 +10,7 @@ vehiculos_bp = Blueprint('vehiculos', __name__)
 def index():
     try:
         usuario_id = int(get_jwt_identity())
-        usuario = Usuario.query.get(usuario_id)
+        usuario = db.session.get(usuario_id)
         
         if not usuario:
             return redirect(url_for('auth.index'))
