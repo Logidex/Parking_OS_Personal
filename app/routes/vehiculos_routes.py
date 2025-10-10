@@ -61,22 +61,13 @@ def listar_vehiculos():
 @vehiculos_bp.route('/api/vehiculos', methods=['POST'])
 @jwt_required()
 def crear_vehiculo():
-    """Crear un nuevo vehículo"""
+    """Crear un nuevo vehículo (solo registrarlo, no ingresarlo al parqueo)"""
     try:
         data = request.get_json()
         
         # Validar datos requeridos
         if not data or not data.get('placa'):
             return jsonify({"error": "La placa es requerida"}), 400
-        
-        if not data.get('marca'):
-            return jsonify({"error": "La marca es requerida"}), 400
-        
-        if not data.get('modelo'):
-            return jsonify({"error": "El modelo es requerido"}), 400
-        
-        if not data.get('color'):
-            return jsonify({"error": "El color es requerido"}), 400
         
         # Normalizar placa (mayúsculas, sin espacios)
         placa = data['placa'].strip().upper()
@@ -85,13 +76,12 @@ def crear_vehiculo():
         if Vehiculo.query.filter_by(placa=placa).first():
             return jsonify({"error": f"Ya existe un vehículo con la placa {placa}"}), 409
         
-        # Crear vehículo
+        # Crear vehículo (todos los campos opcionales excepto placa)
         nuevo_vehiculo = Vehiculo(
             placa=placa,
-            marca=data['marca'].strip(),
-            modelo=data['modelo'].strip(),
-            color=data['color'].strip(),
-            tipo=data.get('tipo', 'sedan'),
+            marca=data.get('marca', '').strip() if data.get('marca') else None,
+            modelo=data.get('modelo', '').strip() if data.get('modelo') else None,
+            color=data.get('color', '').strip() if data.get('color') else None,
             propietario=data.get('propietario', '').strip() if data.get('propietario') else None,
             telefono=data.get('telefono', '').strip() if data.get('telefono') else None
         )
