@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios - Parking OS{% endblock %}
+
+{% block page_title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+<div class="content-section">
+  <div class="section-header">
+    <h2>👥 Usuarios del Sistema</h2>
+    <button class="btn-primary" onclick="mostrarModalCrearUsuario()">
+      <i class="fas fa-user-plus"></i> Crear Usuario
+    </button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre de Usuario</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-usuarios">
+        <tr>
+          <td colspan="4" class="no-data">
+            <i class="fas fa-spinner fa-spin"></i> Cargando usuarios...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="content-section" style="margin-top: 2rem;">
+  <div class="info-banner">
+    <i class="fas fa-shield-alt"></i>
+    <div>
+      <h4>Seguridad</h4>
+      <p>Solo los administradores pueden gestionar usuarios. No puedes eliminar tu propio usuario ni al último administrador del sistema.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/usuarios.js') }}"></script>
+{% endblock %}

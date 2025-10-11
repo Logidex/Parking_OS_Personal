@@ -23,6 +23,7 @@ def create_app():
     from app.routes.tickets_routes import tickets_bp
     from app.routes.transacciones_routes import transacciones_bp
     from app.routes.reportes_routes import reportes_bp
+    from app.routes.usuarios_routes import usuarios_bp 
     
     app.register_blueprint(login_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp)
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(tickets_bp)
     app.register_blueprint(transacciones_bp)
     app.register_blueprint(reportes_bp)
+    app.register_blueprint(usuarios_bp)
     
     @app.route('/')
     def index():

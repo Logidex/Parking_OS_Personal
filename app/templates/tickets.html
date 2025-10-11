@@ -7,7 +7,7 @@
 {% block content %}
 <div class="content-section">
   <div class="section-header">
-    <h2>Vehículos en el Estacionamiento</h2>
+    <h2>🎫 Vehículos en el Estacionamiento</h2>
     <div class="header-actions">
       <button class="btn-secondary" onclick="location.reload()">
         <i class="fas fa-sync-alt"></i> Actualizar
@@ -15,15 +15,59 @@
     </div>
   </div>
 
-  <!-- Estadísticas mini -->
+  <!-- Estadísticas mini mejoradas -->
   <div class="stats-mini">
     <div class="stat-mini">
       <i class="fas fa-car"></i>
       <div>
-        <span class="stat-label">Vehículos Adentro</span>
+        <span class="stat-label">Total Adentro</span>
         <span class="stat-value" id="stat-total-tickets">0</span>
       </div>
     </div>
+    
+    <div class="stat-mini">
+      <i class="fas fa-clock"></i>
+      <div>
+        <span class="stat-label">Tiempo Promedio</span>
+        <span class="stat-value" id="stat-tiempo-promedio">0h 0m</span>
+      </div>
+    </div>
+    
+    <div class="stat-mini">
+      <i class="fas fa-parking"></i>
+      <div>
+        <span class="stat-label">Espacios Usados</span>
+        <span class="stat-value" id="stat-espacios-usados">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros rápidos -->
+  <div class="filter-buttons" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button class="btn-filter active" data-filtro="todos" onclick="filtrarTickets('todos', this)">
+      <i class="fas fa-list"></i> Todos
+    </button>
+    <button class="btn-filter" data-filtro="regular" onclick="filtrarTickets('regular', this)">
+      <i class="fas fa-car"></i> Regulares
+    </button>
+    <button class="btn-filter" data-filtro="moto" onclick="filtrarTickets('moto', this)">
+      <i class="fas fa-motorcycle"></i> Motos
+    </button>
+    <button class="btn-filter" data-filtro="discapacitado" onclick="filtrarTickets('discapacitado', this)">
+      <i class="fas fa-wheelchair"></i> Discapacitados
+    </button>
+    <button class="btn-filter" data-filtro="alerta" onclick="filtrarTickets('alerta', this)">
+      <i class="fas fa-exclamation-triangle"></i> Más de 3h
+    </button>
+  </div>
+
+  <!-- Búsqueda rápida -->
+  <div style="margin-bottom: 1.5rem;">
+    <input type="text" 
+           id="search-placa" 
+           placeholder="🔍 Buscar por placa..." 
+           style="padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; width: 100%; max-width: 400px; font-size: 1rem;"
+           oninput="buscarPorPlaca(this.value)">
   </div>
 
   <!-- Tabla de tickets -->
@@ -37,20 +81,65 @@
           <th>Tipo</th>
           <th>Hora Entrada</th>
           <th>Tiempo</th>
+          <th>Estado</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody id="tbody-tickets">
         <tr>
-          <td colspan="7" class="no-data">Cargando tickets...</td>
+          <td colspan="8" class="no-data">
+            <i class="fas fa-spinner fa-spin"></i> Cargando tickets...
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<!-- Estilos adicionales inline (no afectan el CSS global) -->
+<style>
+.btn-filter {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #666;
+}
+
+.btn-filter:hover {
+  border-color: #2486DB;
+  color: #2486DB;
+  background: #f0f7ff;
+}
+
+.btn-filter.active {
+  background: #2486DB;
+  color: white;
+  border-color: #2486DB;
+}
+
+.tiempo-alerta {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.tiempo-warning {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.tiempo-ok {
+  color: #28a745;
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/tickets.js') }}"></script>
 {% endblock %}
+
+
 

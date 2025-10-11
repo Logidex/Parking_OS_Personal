@@ -5,6 +5,7 @@ from .espacios_routes import espacios_bp
 from .tickets_routes import tickets_bp
 from .transacciones_routes import transacciones_bp
 from .reportes_routes import reportes_bp
+from app.routes.usuarios_routes import usuarios_bp
 
 blueprints = [
     login_bp,
@@ -13,6 +14,7 @@ blueprints = [
     espacios_bp,
     tickets_bp,
     transacciones_bp,
-    reportes_bp
+    reportes_bp,
+    usuarios_bp
 ]
 

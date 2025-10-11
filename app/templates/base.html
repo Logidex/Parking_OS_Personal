@@ -1,123 +1,258 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Parking OS{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <script src="{{ url_for('static', filename='js/auth-interceptor.js') }}"></script>
-  {% block extra_css %}{% endblock %}
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
   <div class="dashboard-container">
-    <nav class="sidebar">
+    <!-- Sidebar -->
+    <aside class="sidebar">
       <div class="logo">
-        <h2>Parking OS</h2>
+        <h2>🅿️ PARKING OS</h2>
       </div>
+      
       <ul class="menu">
         <li class="{% if active_page == 'dashboard' %}active{% endif %}">
-          <a href="/dashboard"><i class="fas fa-home"></i> Inicio</a>
+          <a href="/dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
         </li>
+        
         <li class="{% if active_page == 'vehiculos' %}active{% endif %}">
-          <a href="/vehiculos"><i class="fas fa-car"></i> Vehículos</a>
+          <a href="/vehiculos">
+            <i class="fas fa-car"></i>
+            <span>Vehículos</span>
+          </a>
         </li>
+        
         <li class="{% if active_page == 'espacios' %}active{% endif %}">
-          <a href="/espacios"><i class="fas fa-parking"></i> Espacios</a>
+          <a href="/espacios">
+            <i class="fas fa-parking"></i>
+            <span>Espacios</span>
+          </a>
         </li>
+        
         <li class="{% if active_page == 'tickets' %}active{% endif %}">
-          <a href="/tickets"><i class="fas fa-ticket-alt"></i> Tickets</a>
+          <a href="/tickets">
+            <i class="fas fa-ticket-alt"></i>
+            <span>Tickets</span>
+          </a>
         </li>
+        
         <li class="{% if active_page == 'transacciones' %}active{% endif %}">
-          <a href="/transacciones"><i class="fas fa-money-bill-wave"></i> Transacciones</a>
+          <a href="/transacciones">
+            <i class="fas fa-receipt"></i>
+            <span>Transacciones</span>
+          </a>
         </li>
+        
         <li class="{% if active_page == 'reportes' %}active{% endif %}">
-          <a href="/reportes"><i class="fas fa-chart-bar"></i> Reportes</a>
+          <a href="/reportes">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reportes</span>
+          </a>
         </li>
+        
+        <!-- Solo visible para administradores -->
+        {% if usuario.rol == 'admin' %}
+        <li class="{% if active_page == 'usuarios' %}active{% endif %}">
+          <a href="/usuarios">
+            <i class="fas fa-users"></i>
+            <span>Usuarios</span>
+          </a>
+        </li>
+        {% endif %}
       </ul>
       
-      <!-- ⭐ NUEVO: Indicador de sesión -->
+      <!-- Indicador de sesión -->
       <div class="session-info">
         <i class="fas fa-clock"></i>
         <div class="session-details">
-          <small>Sesión expira en:</small>
-          <span id="session-timer" class="session-timer">Cargando...</span>
+          <small>TIEMPO DE SESIÓN</small>
+          <span class="session-timer" id="session-time">Cargando...</span>
         </div>
       </div>
       
       <div class="logout">
-        <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        <a href="#" id="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Cerrar Sesión</span>
+        </a>
       </div>
-    </nav>
+    </aside>
 
+    <!-- Contenido Principal -->
     <main class="main-content">
       <header>
-        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
-        <p>Usuario: <span class="badge">{{ usuario.nombre_usuario }}</span> | Rol: <span class="badge">{{ usuario.rol }}</span></p>
+        <h1>{% block page_title %}Parking OS{% endblock %}</h1>
+        <span class="badge">
+          {{ usuario.nombre_usuario }}
+          {% if usuario.rol == 'admin' %}
+          | 👑 Admin
+          {% else %}
+          | 👤 Usuario
+          {% endif %}
+        </span>
       </header>
 
       {% block content %}{% endblock %}
     </main>
   </div>
 
-  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- JavaScript Global -->
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
   
-  <!-- ⭐ NUEVO: Script para actualizar tiempo de sesión -->
+  <!-- JavaScript de Sesión -->
   <script>
-    // Actualizar tiempo de sesión
-    async function actualizarTiempoSesion() {
-        try {
-            const response = await fetch('/auth/session-info');
-            
-            if (!response.ok) {
-                // Si no está autenticado, no hacer nada
-                return;
-            }
-            
-            const data = await response.json();
-            
-            const timerElement = document.getElementById('session-timer');
-            if (timerElement) {
-                timerElement.textContent = data.expira_en;
-                
-                // Si quedan menos de 10 minutos, cambiar color a rojo y mostrar warning
-                if (data.tiempo_restante_segundos < 600) {
-                    timerElement.style.color = '#dc3545';
-                    timerElement.style.fontWeight = 'bold';
-                    
-                    // Mostrar warning una sola vez cuando queden menos de 10 minutos
-                    if (!window.sessionWarningShown && data.tiempo_restante_segundos < 600 && data.tiempo_restante_segundos > 550) {
-                        window.sessionWarningShown = true;
-                        Swal.fire({
-                            icon: 'warning',
-                            title: '⚠️ Sesión por expirar',
-                            text: `Tu sesión expirará en ${data.minutos} minutos. Guarda tu trabajo.`,
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            timerProgressBar: true
-                        });
-                    }
-                } else {
-                    timerElement.style.color = '#ffc107';
-                    timerElement.style.fontWeight = 'normal';
-                }
-            }
-        } catch (error) {
-            console.log('No se pudo obtener info de sesión:', error);
+    // ========== GESTIÓN DE SESIÓN ==========
+    let sessionCheckInterval;
+    let sessionWarningShown = false;
+
+    async function verificarSesion() {
+      try {
+        const response = await fetch('/auth/session-info');
+        
+        if (!response.ok) {
+          // Sesión expirada
+          clearInterval(sessionCheckInterval);
+          
+          Swal.fire({
+            icon: 'warning',
+            title: 'Sesión Expirada',
+            text: 'Tu sesión ha expirado. Serás redirigido al login.',
+            confirmButtonText: 'Aceptar',
+            allowOutsideClick: false
+          }).then(() => {
+            window.location.href = '/auth/';
+          });
+          
+          return;
         }
+        
+        const data = await response.json();
+        
+        // Actualizar indicador de sesión
+        const sessionTimeElement = document.getElementById('session-time');
+        if (sessionTimeElement) {
+          sessionTimeElement.textContent = data.expira_en;
+        }
+        
+        // Warning 10 minutos antes de expirar (600 segundos)
+        if (data.tiempo_restante_segundos <= 600 && !sessionWarningShown) {
+          sessionWarningShown = true;
+          
+          Swal.fire({
+            icon: 'warning',
+            title: 'Sesión por expirar',
+            html: `Tu sesión expirará en <strong>${data.expira_en}</strong>.<br>Guarda tu trabajo.`,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#2486DB'
+          });
+        }
+        
+        // Reset warning si hay más de 10 minutos
+        if (data.tiempo_restante_segundos > 600) {
+          sessionWarningShown = false;
+        }
+        
+      } catch (error) {
+        console.error('Error al verificar sesión:', error);
+      }
     }
-    
-    // Actualizar inmediatamente y luego cada minuto
-    if (document.getElementById('session-timer')) {
-        actualizarTiempoSesion();
-        setInterval(actualizarTiempoSesion, 60000); // Cada minuto
-    }
+
+    // Verificar sesión cada 30 segundos
+    document.addEventListener('DOMContentLoaded', () => {
+      verificarSesion();
+      sessionCheckInterval = setInterval(verificarSesion, 30000);
+    });
+
+    // ========== INTERCEPTOR GLOBAL PARA FETCH ==========
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+      return originalFetch.apply(this, args)
+        .then(async response => {
+          // Si es 401 (no autorizado), redirigir al login
+          if (response.status === 401) {
+            clearInterval(sessionCheckInterval);
+            
+            const clonedResponse = response.clone();
+            
+            Swal.fire({
+              icon: 'warning',
+              title: 'Sesión Expirada',
+              text: 'Tu sesión ha expirado. Serás redirigido al login.',
+              confirmButtonText: 'Aceptar',
+              allowOutsideClick: false
+            }).then(() => {
+              window.location.href = '/auth/';
+            });
+          }
+          
+          return response;
+        });
+    };
+
+    // ========== LOGOUT ==========
+    document.getElementById('logout-btn')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      const result = await Swal.fire({
+        title: '¿Cerrar sesión?',
+        text: '¿Estás seguro de que deseas cerrar sesión?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cerrar sesión',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+      });
+      
+      if (!result.isConfirmed) return;
+      
+      try {
+        const response = await fetch('/auth/logout', {
+          method: 'POST'
+        });
+        
+        if (response.ok) {
+          clearInterval(sessionCheckInterval);
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Sesión cerrada',
+            text: 'Has cerrado sesión exitosamente',
+            timer: 1500,
+            showConfirmButton: false
+          }).then(() => {
+            window.location.href = '/auth/';
+          });
+        }
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo cerrar la sesión'
+        });
+      }
+    });
   </script>
-  
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>
+
+
 
