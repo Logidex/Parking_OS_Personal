@@ -8,28 +8,45 @@
 <div class="stats-grid">
   <div class="stat-card">
     <i class="fas fa-car"></i>
-    <h3>Total Vehículos</h3>
-    <p class="stat-number">0</p>
+    <div class="stat-content">
+      <h3>Total Vehículos</h3>
+      <p class="stat-number">0</p>
+    </div>
   </div>
   <div class="stat-card">
     <i class="fas fa-parking"></i>
-    <h3>Espacios Ocupados</h3>
-    <p class="stat-number">0</p>
+    <div class="stat-content">
+      <h3>Espacios Ocupados</h3>
+      <p class="stat-number">0</p>
+    </div>
   </div>
   <div class="stat-card">
     <i class="fas fa-ticket-alt"></i>
-    <h3>Tickets Activos</h3>
-    <p class="stat-number">0</p>
+    <div class="stat-content">
+      <h3>Tickets Activos</h3>
+      <p class="stat-number">0</p>
+    </div>
   </div>
   <div class="stat-card">
     <i class="fas fa-dollar-sign"></i>
-    <h3>Ingresos Hoy</h3>
-    <p class="stat-number">$0</p>
+    <div class="stat-content">
+      <h3>Ingresos Hoy</h3>
+      <p class="stat-number">RD$0.00</p>
+    </div>
   </div>
 </div>
 
+<!-- Ocupación por tipo -->
+<div class="content-section">
+  <h2>📊 Ocupación por Tipo de Espacio</h2>
+  <div id="ocupacion-por-tipo" class="ocupacion-grid">
+    <p class="no-data">Cargando...</p>
+  </div>
+</div>
+
+<!-- Actividad reciente -->
 <div class="recent-activity">
-  <h2>Actividad Reciente</h2>
+  <h2>📋 Actividad Reciente</h2>
   <table>
     <thead>
       <tr>
@@ -41,9 +58,12 @@
     </thead>
     <tbody>
       <tr>
-        <td colspan="4" class="no-data">No hay actividad reciente</td>
+        <td colspan="4" class="no-data">
+          <i class="fas fa-spinner fa-spin"></i> Cargando actividad...
+        </td>
       </tr>
     </tbody>
   </table>
 </div>
 {% endblock %}
+

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.models.espacio import Espacio
 from app.models.usuario import Usuario
 from app.models.vehiculo import Vehiculo
 from app.extensions import db
@@ -212,3 +213,23 @@ def estadisticas_vehiculos():
         print(f"❌ Error al obtener estadísticas: {e}")
         return jsonify({"error": str(e)}), 500
 
+@vehiculos_bp.route('/api/espacios/disponibles-por-tipo', methods=['GET'])
+@jwt_required()
+def espacios_disponibles_por_tipo():
+    """Obtener espacios disponibles por tipo de vehículo"""
+    try:
+        # Contar espacios disponibles por tipo
+        regulares = Espacio.query.filter_by(tipo='regular', estado='disponible', activo=True).count()
+        motos = Espacio.query.filter_by(tipo='moto', estado='disponible', activo=True).count()
+        discapacitados = Espacio.query.filter_by(tipo='discapacitado', estado='disponible', activo=True).count()
+        
+        return jsonify({
+            'regular': regulares,
+            'moto': motos,
+            'discapacitado': discapacitados,
+            'total': regulares + motos + discapacitados
+        }), 200
+        
+    except Exception as e:
+        print(f"❌ Error al obtener espacios disponibles: {e}")
+        return jsonify({"error": str(e)}), 500

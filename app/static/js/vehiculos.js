@@ -13,7 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Event listener para formulario
     document.getElementById('form-ingreso-rapido')?.addEventListener('submit', ingresarVehiculoRapido);
+    
+    // Event listener para cambio de tipo de vehículo
+    document.getElementById('select-tipo-vehiculo')?.addEventListener('change', actualizarDisponibilidad);
 });
+
+// Variable global para almacenar espacios por tipo
+let espaciosPorTipo = {};
 
 // ========== INGRESAR VEHÍCULO RÁPIDO ==========
 async function ingresarVehiculoRapido(e) {
@@ -101,16 +107,32 @@ async function ingresarVehiculoRapido(e) {
 // ========== CARGAR DISPONIBILIDAD ==========
 async function cargarDisponibilidad() {
     try {
-        const response = await fetch('/api/espacios/estadisticas');
-        const stats = await response.json();
+        const response = await fetch('/api/espacios/disponibles-por-tipo');
         
-        // Calcular por tipo (simplificado - todos como regulares por ahora)
-        document.getElementById('disponibles-regular').textContent = stats.disponibles || 0;
-        document.getElementById('disponibles-moto').textContent = stats.disponibles || 0;
-        document.getElementById('disponibles-discapacitado').textContent = stats.disponibles || 0;
-        
+        if (response.ok) {
+            espaciosPorTipo = await response.json();
+            actualizarDisponibilidad();
+        }
     } catch (error) {
         console.error('Error:', error);
+    }
+}
+
+// ========== ACTUALIZAR DISPONIBILIDAD ==========
+function actualizarDisponibilidad() {
+    // Actualizar cada tipo de espacio
+    const regularElement = document.getElementById('disponibles-regular');
+    const motoElement = document.getElementById('disponibles-moto');
+    const discapacitadoElement = document.getElementById('disponibles-discapacitado');
+    
+    if (regularElement) {
+        regularElement.textContent = espaciosPorTipo.regular || 0;
+    }
+    if (motoElement) {
+        motoElement.textContent = espaciosPorTipo.moto || 0;
+    }
+    if (discapacitadoElement) {
+        discapacitadoElement.textContent = espaciosPorTipo.discapacitado || 0;
     }
 }
 

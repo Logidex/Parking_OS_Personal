@@ -639,6 +639,7 @@ table td {
 }
 
 /* Disponibilidad */
+
 .disponibilidad-container {
   background: white;
   padding: 1.5rem;
@@ -902,5 +903,90 @@ table td {
   margin: 0.25rem 0 0 0;
   color: #666;
   font-size: 0.9rem;
+}
+
+/* ========== OCUPACIÓN POR TIPO ========== */
+
+.ocupacion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.ocupacion-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ocupacion-card h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.ocupacion-card p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Badges */
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-secondary {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+/* Stat content layout */
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-content .stat-number {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
 }
 
