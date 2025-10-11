@@ -573,3 +573,213 @@ table td {
   transform: scale(1.1);
 }
 
+/* ========== INGRESO DE VEHÍCULOS ========== */
+
+.ingreso-rapido-container {
+  margin-bottom: 2rem;
+}
+
+.ingreso-card {
+  background: linear-gradient(135deg, #2486DB 0%, #1a5fa3 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(36, 134, 219, 0.3);
+}
+
+.ingreso-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.ingreso-card h3 i {
+  margin-right: 0.5rem;
+}
+
+.ingreso-card .descripcion {
+  margin: 0 0 1.5rem 0;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.form-group-inline {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.input-placa {
+  flex: 1;
+  min-width: 200px;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 8px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.select-tipo {
+  padding: 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Disponibilidad */
+.disponibilidad-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.disponibilidad-container h3 {
+  margin: 0 0 1rem 0;
+  color: #113F67;
+  font-size: 1.2rem;
+}
+
+.disponibilidad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.disponibilidad-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #2486DB;
+  transition: all 0.3s ease;
+}
+
+.disponibilidad-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.icono-wrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #2486DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.icono-wrapper.moto {
+  background: #ffc107;
+}
+
+.icono-wrapper.discapacitado {
+  background: #28a745;
+}
+
+.disponibilidad-item .info {
+  flex: 1;
+}
+
+.disponibilidad-item .label {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.disponibilidad-item .valor {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #113F67;
+}
+
+/* Instrucciones */
+.instrucciones {
+  background: #fff9e6;
+  border-left: 4px solid #ffc107;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.instrucciones h4 {
+  margin: 0 0 1rem 0;
+  color: #113F67;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.instrucciones ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.instrucciones li {
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-group-inline {
+    flex-direction: column;
+  }
+  
+  .input-placa,
+  .select-tipo,
+  .btn-large {
+    width: 100%;
+  }
+}
+
+/* ========== TICKETS ========== */
+
+.badge-espacio {
+  background: #2486DB;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.btn-salida {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-salida:hover {
+  background: #218838;
+  transform: scale(1.05);
+}
+
+.btn-salida i {
+  margin-right: 0.3rem;
+}
+

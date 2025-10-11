@@ -6,14 +6,10 @@
 
 {% block content %}
 <div class="content-section">
-  <div class="section-header">
-    <h2>Ingreso Rápido</h2>
-  </div>
-
-  <!-- Formulario simple de ingreso -->
+  <!-- Formulario de ingreso rápido -->
   <div class="ingreso-rapido-container">
     <div class="ingreso-card">
-      <h3><i class="fas fa-car"></i> Ingresar Vehículo</h3>
+      <h3><i class="fas fa-car"></i> Ingreso Rápido de Vehículo</h3>
       <p class="descripcion">Ingresa la placa del vehículo para asignarle un espacio automáticamente</p>
       
       <form id="form-ingreso-rapido">
@@ -21,20 +17,21 @@
           <input 
             type="text" 
             id="input-placa" 
-            placeholder="Placa del vehículo (ej: ABC123)" 
-            style="text-transform: uppercase;"
+            class="input-placa"
+            placeholder="PLACA (ej: ABC123)" 
             required
             autocomplete="off"
+            maxlength="10"
           >
           
-          <select id="select-tipo-vehiculo">
-            <option value="regular">Vehículo Regular</option>
-            <option value="moto">Motocicleta</option>
-            <option value="discapacitado">Con Discapacidad</option>
+          <select id="select-tipo-vehiculo" class="select-tipo">
+            <option value="regular">🚗 Vehículo Regular</option>
+            <option value="moto">🏍️ Motocicleta</option>
+            <option value="discapacitado">♿ Con Discapacidad</option>
           </select>
           
           <button type="submit" class="btn-primary btn-large">
-            <i class="fas fa-check-circle"></i> Ingresar
+            <i class="fas fa-check-circle"></i> Ingresar Vehículo
           </button>
         </div>
       </form>
@@ -46,27 +43,44 @@
     <h3>Disponibilidad de Espacios</h3>
     <div class="disponibilidad-grid">
       <div class="disponibilidad-item">
-        <i class="fas fa-car"></i>
-        <div>
+        <div class="icono-wrapper">
+          <i class="fas fa-car"></i>
+        </div>
+        <div class="info">
           <span class="label">Regulares</span>
-          <span class="valor" id="disponibles-regular">0</span>
+          <span class="valor" id="disponibles-regular">-</span>
         </div>
       </div>
       <div class="disponibilidad-item">
-        <i class="fas fa-motorcycle"></i>
-        <div>
+        <div class="icono-wrapper moto">
+          <i class="fas fa-motorcycle"></i>
+        </div>
+        <div class="info">
           <span class="label">Motos</span>
-          <span class="valor" id="disponibles-moto">0</span>
+          <span class="valor" id="disponibles-moto">-</span>
         </div>
       </div>
       <div class="disponibilidad-item">
-        <i class="fas fa-wheelchair"></i>
-        <div>
+        <div class="icono-wrapper discapacitado">
+          <i class="fas fa-wheelchair"></i>
+        </div>
+        <div class="info">
           <span class="label">Discapacitados</span>
-          <span class="valor" id="disponibles-discapacitado">0</span>
+          <span class="valor" id="disponibles-discapacitado">-</span>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Instrucciones -->
+  <div class="instrucciones">
+    <h4><i class="fas fa-info-circle"></i> ¿Cómo funciona?</h4>
+    <ol>
+      <li>Ingresa la placa del vehículo</li>
+      <li>Selecciona el tipo de vehículo</li>
+      <li>El sistema asignará automáticamente el espacio más cercano disponible</li>
+      <li>Se generará un ticket de entrada</li>
+    </ol>
   </div>
 </div>
 {% endblock %}
@@ -74,5 +88,6 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/vehiculos.js') }}"></script>
 {% endblock %}
+
 
 

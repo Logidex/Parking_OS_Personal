@@ -3,6 +3,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     cargarDisponibilidad();
     
+    // Auto-convertir placa a mayúsculas mientras escribes
+    const inputPlaca = document.getElementById('input-placa');
+    if (inputPlaca) {
+        inputPlaca.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    }
+    
     // Event listener para formulario
     document.getElementById('form-ingreso-rapido')?.addEventListener('submit', ingresarVehiculoRapido);
 });
@@ -57,10 +65,13 @@ async function ingresarVehiculoRapido(e) {
             title: '¡Vehículo Ingresado!',
             html: `
                 <div style="text-align: center;">
-                    <h2 style="color: #2486DB; margin: 1rem 0;">${result.espacio.numero}</h2>
+                    <h2 style="color: #2486DB; margin: 1rem 0; font-size: 3rem;">${result.espacio.numero}</h2>
                     <p><strong>Placa:</strong> ${placa}</p>
-                    <p><strong>Tipo:</strong> ${tipoVehiculo}</p>
+                    <p><strong>Tipo:</strong> ${capitalizarPrimeraLetra(tipoVehiculo)}</p>
                     <p><strong>Sección:</strong> ${result.espacio.seccion}</p>
+                    <p style="margin-top: 1rem; color: #666;">
+                        <i class="fas fa-ticket-alt"></i> Ticket #${result.ticket.id}
+                    </p>
                 </div>
             `,
             confirmButtonText: 'Aceptar',
@@ -70,6 +81,9 @@ async function ingresarVehiculoRapido(e) {
         // Limpiar formulario
         document.getElementById('input-placa').value = '';
         document.getElementById('select-tipo-vehiculo').value = 'regular';
+        
+        // Focus en input
+        document.getElementById('input-placa').focus();
         
         // Actualizar disponibilidad
         cargarDisponibilidad();
@@ -90,15 +104,19 @@ async function cargarDisponibilidad() {
         const response = await fetch('/api/espacios/estadisticas');
         const stats = await response.json();
         
-        // Actualizar contadores
+        // Calcular por tipo (simplificado - todos como regulares por ahora)
         document.getElementById('disponibles-regular').textContent = stats.disponibles || 0;
-        
-        // Si tienes separado por tipo, úsalo
-        // document.getElementById('disponibles-moto').textContent = ...
-        // document.getElementById('disponibles-discapacitado').textContent = ...
+        document.getElementById('disponibles-moto').textContent = stats.disponibles || 0;
+        document.getElementById('disponibles-discapacitado').textContent = stats.disponibles || 0;
         
     } catch (error) {
         console.error('Error:', error);
     }
 }
+
+// ========== UTILIDADES ==========
+function capitalizarPrimeraLetra(texto) {
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
 

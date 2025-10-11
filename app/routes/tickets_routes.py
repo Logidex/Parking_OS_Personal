@@ -38,6 +38,27 @@ def listar_tickets_activos():
         resultado = []
         for ticket in tickets:
             ticket_dict = ticket.to_dict()
+            
+            # ⭐ AGREGAR: Calcular tiempo transcurrido en el backend
+            if ticket.fecha_entrada:
+                fecha_entrada = ticket.fecha_entrada
+                if fecha_entrada.tzinfo is None:
+                    fecha_entrada = fecha_entrada.replace(tzinfo=timezone.utc)
+                
+                ahora = datetime.now(timezone.utc)
+                tiempo_transcurrido = ahora - fecha_entrada
+                
+                # Convertir a horas y minutos
+                total_minutos = int(tiempo_transcurrido.total_seconds() / 60)
+                horas = total_minutos // 60
+                minutos = total_minutos % 60
+                
+                ticket_dict['tiempo_transcurrido'] = {
+                    'horas': horas,
+                    'minutos': minutos,
+                    'texto': f"{horas}h {minutos}m"
+                }
+            
             # Agregar información del espacio
             if ticket.espacio:
                 ticket_dict['espacio'] = {
@@ -50,7 +71,10 @@ def listar_tickets_activos():
         return jsonify(resultado), 200
     except Exception as e:
         print(f"❌ Error al listar tickets: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
 
 
 @tickets_bp.route('/api/tickets/ingresar', methods=['POST'])

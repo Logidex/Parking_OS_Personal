@@ -1,33 +1,48 @@
 {% extends "base.html" %}
 
-{% block title %}Tickets - Parking OS{% endblock %}
+{% block title %}Tickets Activos - Parking OS{% endblock %}
 
-{% block page_title %}Gestión de Tickets{% endblock %}
+{% block page_title %}Tickets Activos{% endblock %}
 
 {% block content %}
 <div class="content-section">
   <div class="section-header">
-    <h2>Tickets Activos</h2>
-    <button class="btn-primary" id="btn-nuevo-ticket">
-      <i class="fas fa-plus"></i> Generar Ticket
-    </button>
+    <h2>Vehículos en el Estacionamiento</h2>
+    <div class="header-actions">
+      <button class="btn-secondary" onclick="location.reload()">
+        <i class="fas fa-sync-alt"></i> Actualizar
+      </button>
+    </div>
   </div>
 
+  <!-- Estadísticas mini -->
+  <div class="stats-mini">
+    <div class="stat-mini">
+      <i class="fas fa-car"></i>
+      <div>
+        <span class="stat-label">Vehículos Adentro</span>
+        <span class="stat-value" id="stat-total-tickets">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de tickets -->
   <div class="table-container">
-    <table>
+    <table id="tabla-tickets">
       <thead>
         <tr>
           <th>Ticket #</th>
-          <th>Vehículo</th>
+          <th>Placa</th>
           <th>Espacio</th>
+          <th>Tipo</th>
           <th>Hora Entrada</th>
           <th>Tiempo</th>
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tbody-tickets">
         <tr>
-          <td colspan="6" class="no-data">No hay tickets activos</td>
+          <td colspan="7" class="no-data">Cargando tickets...</td>
         </tr>
       </tbody>
     </table>
@@ -38,3 +53,4 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/tickets.js') }}"></script>
 {% endblock %}
+
