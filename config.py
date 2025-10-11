@@ -1,24 +1,25 @@
 import os
-from datetime import timedelta
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+class Config:
+    # Base de datos
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///parking.db')
+    
+    # Fix para Railway/Render (PostgreSQL)
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+    
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Seguridad
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-cambiar-en-produccion')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', SECRET_KEY)
+    
+    # Sesión JWT
+    JWT_TOKEN_LOCATION = ['cookies']
+    JWT_COOKIE_SECURE = os.environ.get('FLASK_ENV') == 'production'  # HTTPS en producción
+    JWT_COOKIE_CSRF_PROTECT = False
+    JWT_ACCESS_TOKEN_EXPIRES = 3600  # 1 hora
 
-# Base de datos
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'app.db')
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-SECRET_KEY = 'dev_key'
-DEBUG = True
-
-# Configuración de JWT
-JWT_SECRET_KEY = SECRET_KEY
-JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)  # Token expira en 8 horas
-
-# Configuración de cookies JWT
-JWT_TOKEN_LOCATION = ['cookies']
-JWT_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
-JWT_COOKIE_CSRF_PROTECT = False
-JWT_ACCESS_COOKIE_PATH = '/'
-JWT_COOKIE_SAMESITE = 'Lax'
 
 
 
