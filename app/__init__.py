@@ -34,7 +34,7 @@ def create_app():
     
     @app.route('/')
     def index():
-        return redirect(url_for('auth.index'))
+        return redirect(url_for('/auth.index'))
     
     # ⭐ DETECTAR SI ESTAMOS EN TESTING
     # Verificar si pytest está corriendo
