@@ -1,12 +1,11 @@
 from flask import Flask
-from flask_jwt_extended import JWTManager
 from app.extensions import db, jwt
 import config
 
 def create_app():
     app = Flask(__name__)
     
-    # Cargar configuración desde config.py
+    # Cargar configuración
     app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
     app.config['SECRET_KEY'] = config.SECRET_KEY
@@ -59,6 +58,7 @@ def create_app():
             print("✅ Usuario admin creado")
     
     return app
+
 
 
 
