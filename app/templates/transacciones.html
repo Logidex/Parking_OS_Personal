@@ -5,9 +5,15 @@
 {% block page_title %}Historial de Transacciones{% endblock %}
 
 {% block content %}
+<!-- Estadísticas -->
+<div id="stats-container"></div>
+
 <div class="content-section">
   <div class="section-header">
-    <h2>Transacciones Realizadas</h2>
+    <h2>📋 Transacciones Realizadas</h2>
+    <button class="btn-primary" onclick="cargarTransacciones()">
+      <i class="fas fa-sync-alt"></i> Actualizar
+    </button>
   </div>
 
   <div class="table-container">
@@ -15,7 +21,7 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Fecha</th>
+          <th>Fecha y Hora</th>
           <th>Vehículo</th>
           <th>Tiempo</th>
           <th>Monto</th>
@@ -24,7 +30,9 @@
       </thead>
       <tbody>
         <tr>
-          <td colspan="6" class="no-data">No hay transacciones registradas</td>
+          <td colspan="6" class="no-data">
+            <i class="fas fa-spinner fa-spin"></i> Cargando transacciones...
+          </td>
         </tr>
       </tbody>
     </table>
@@ -35,3 +43,4 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/transacciones.js') }}"></script>
 {% endblock %}
+
