@@ -35,6 +35,16 @@
           <a href="/reportes"><i class="fas fa-chart-bar"></i> Reportes</a>
         </li>
       </ul>
+      
+      <!-- ⭐ NUEVO: Indicador de sesión -->
+      <div class="session-info">
+        <i class="fas fa-clock"></i>
+        <div class="session-details">
+          <small>Sesión expira en:</small>
+          <span id="session-timer" class="session-timer">Cargando...</span>
+        </div>
+      </div>
+      
       <div class="logout">
         <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
       </div>
@@ -52,6 +62,62 @@
 
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  
+  <!-- ⭐ NUEVO: Script para actualizar tiempo de sesión -->
+  <script>
+    // Actualizar tiempo de sesión
+    async function actualizarTiempoSesion() {
+        try {
+            const response = await fetch('/auth/session-info');
+            
+            if (!response.ok) {
+                // Si no está autenticado, no hacer nada
+                return;
+            }
+            
+            const data = await response.json();
+            
+            const timerElement = document.getElementById('session-timer');
+            if (timerElement) {
+                timerElement.textContent = data.expira_en;
+                
+                // Si quedan menos de 10 minutos, cambiar color a rojo y mostrar warning
+                if (data.tiempo_restante_segundos < 600) {
+                    timerElement.style.color = '#dc3545';
+                    timerElement.style.fontWeight = 'bold';
+                    
+                    // Mostrar warning una sola vez cuando queden menos de 10 minutos
+                    if (!window.sessionWarningShown && data.tiempo_restante_segundos < 600 && data.tiempo_restante_segundos > 550) {
+                        window.sessionWarningShown = true;
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '⚠️ Sesión por expirar',
+                            text: `Tu sesión expirará en ${data.minutos} minutos. Guarda tu trabajo.`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true
+                        });
+                    }
+                } else {
+                    timerElement.style.color = '#ffc107';
+                    timerElement.style.fontWeight = 'normal';
+                }
+            }
+        } catch (error) {
+            console.log('No se pudo obtener info de sesión:', error);
+        }
+    }
+    
+    // Actualizar inmediatamente y luego cada minuto
+    if (document.getElementById('session-timer')) {
+        actualizarTiempoSesion();
+        setInterval(actualizarTiempoSesion, 60000); // Cada minuto
+    }
+  </script>
+  
   {% block extra_js %}{% endblock %}
 </body>
 </html>
+

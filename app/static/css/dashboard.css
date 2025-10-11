@@ -783,3 +783,74 @@ table td {
   margin-right: 0.3rem;
 }
 
+/* ========== INDICADOR DE SESIÓN ========== */
+
+.session-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 3px solid #ffc107;
+  transition: all 0.3s ease;
+}
+
+.session-info:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.session-info i {
+  font-size: 1.5rem;
+  color: #ffc107;
+}
+
+.session-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.session-details small {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.session-timer {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffc107;
+  transition: color 0.3s ease;
+}
+
+/* Logout */
+.logout {
+  margin-top: auto;
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.logout a:hover {
+  background: rgba(220, 53, 69, 0.2);
+  transform: translateX(5px);
+}
+
+.logout a i {
+  color: #dc3545;
+}
+
