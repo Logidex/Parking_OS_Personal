@@ -1,17 +1,22 @@
-from flask import Flask, redirect, url_for
-from werkzeug.security import generate_password_hash
+from flask import Flask
 from flask_jwt_extended import JWTManager
-from app.extensions import db
-from app.models.usuario import Usuario
-from app.models.espacio import Espacio
-import sys
-
-jwt = JWTManager()
+from app.extensions import db, jwt
+import config
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('config')
     
+    # Cargar configuración desde config.py
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
+    app.config['SECRET_KEY'] = config.SECRET_KEY
+    app.config['JWT_SECRET_KEY'] = config.JWT_SECRET_KEY
+    app.config['JWT_TOKEN_LOCATION'] = config.JWT_TOKEN_LOCATION
+    app.config['JWT_COOKIE_SECURE'] = config.JWT_COOKIE_SECURE
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = config.JWT_COOKIE_CSRF_PROTECT
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = config.JWT_ACCESS_TOKEN_EXPIRES
+    
+    # Inicializar extensiones
     db.init_app(app)
     jwt.init_app(app)
     
@@ -23,7 +28,7 @@ def create_app():
     from app.routes.tickets_routes import tickets_bp
     from app.routes.transacciones_routes import transacciones_bp
     from app.routes.reportes_routes import reportes_bp
-    from app.routes.usuarios_routes import usuarios_bp 
+    from app.routes.usuarios_routes import usuarios_bp
     
     app.register_blueprint(login_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp)
@@ -34,80 +39,27 @@ def create_app():
     app.register_blueprint(reportes_bp)
     app.register_blueprint(usuarios_bp)
     
-    @app.route('/')
-    def index():
-        return redirect(url_for('/auth.index'))
-    
-    # ⭐ DETECTAR SI ESTAMOS EN TESTING
-    # Verificar si pytest está corriendo
-    is_testing = 'pytest' in sys.modules or app.config.get('TESTING', False)
-    
-    # Solo crear datos iniciales si NO estamos en testing
-    if not is_testing:
-        with app.app_context():
-            db.create_all()
-            
-            # Crear usuario admin si no existe
-            if not Usuario.query.filter_by(nombre_usuario='admin').first():
-                admin = Usuario(
-                    nombre_usuario='admin',
-                    contraseña=generate_password_hash('admin'),
-                    rol='admin'
-                )
-                db.session.add(admin)
-                db.session.commit()
-                print("✅ Usuario admin creado correctamente")
-            
-            # Crear espacios iniciales si no existen
-            if Espacio.query.count() == 0:
-                print("Creando espacios iniciales...")
-                espacios_iniciales = []
-                
-                # Espacios regulares (A y B)
-                for seccion in ['A', 'B']:
-                    for i in range(1, 21):
-                        espacio = Espacio(
-                            numero=f'{seccion}-{i:02d}',
-                            tipo='regular',
-                            estado='disponible',
-                            piso=1,
-                            seccion=seccion
-                        )
-                        espacios_iniciales.append(espacio)
-                
-                # Espacios para discapacitados (C)
-                for i in range(1, 6):
-                    espacio = Espacio(
-                        numero=f'C-{i:02d}',
-                        tipo='discapacitado',
-                        estado='disponible',
-                        piso=1,
-                        seccion='C'
-                    )
-                    espacios_iniciales.append(espacio)
-                
-                # Espacios para motos (D)
-                for i in range(1, 11):
-                    espacio = Espacio(
-                        numero=f'D-{i:02d}',
-                        tipo='moto',
-                        estado='disponible',
-                        piso=1,
-                        seccion='D'
-                    )
-                    espacios_iniciales.append(espacio)
-                
-                db.session.bulk_save_objects(espacios_iniciales)
-                db.session.commit()
-                print(f"✅ {len(espacios_iniciales)} espacios creados correctamente")
-            
-            # Imprimir rutas registradas
-            print("\n📋 Rutas registradas:")
-            for rule in app.url_map.iter_rules():
-                if not rule.endpoint.startswith('static'):
-                    print(f"  {rule.endpoint}: {rule.rule} {list(rule.methods - {'HEAD', 'OPTIONS'})}")
+    # Crear tablas
+    with app.app_context():
+        db.create_all()
+        
+        # Crear usuario admin si no existe
+        from app.models.usuario import Usuario
+        from werkzeug.security import generate_password_hash
+        
+        admin = Usuario.query.filter_by(nombre_usuario='admin').first()
+        if not admin:
+            admin = Usuario(
+                nombre_usuario='admin',
+                contraseña=generate_password_hash('admin'),
+                rol='admin'
+            )
+            db.session.add(admin)
+            db.session.commit()
+            print("✅ Usuario admin creado")
     
     return app
+
 
 
 
