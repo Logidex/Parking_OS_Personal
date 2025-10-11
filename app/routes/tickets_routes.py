@@ -162,6 +162,15 @@ def registrar_salida(ticket_id):
         if ticket.estado != 'activo':
             return jsonify({"error": "El ticket ya fue finalizado"}), 400
         
+        # Obtener datos del request
+        data = request.get_json() or {}
+        metodo_pago = data.get('metodo_pago', 'efectivo')
+        
+        # Validar método de pago (solo efectivo o tarjeta)
+        metodos_validos = ['efectivo', 'tarjeta']
+        if metodo_pago not in metodos_validos:
+            metodo_pago = 'efectivo'
+        
         # Calcular tiempo de estancia
         fecha_salida = datetime.now(timezone.utc)
         
@@ -180,6 +189,7 @@ def registrar_salida(ticket_id):
         ticket.fecha_salida = fecha_salida
         ticket.estado = 'finalizado'
         ticket.monto = monto
+        ticket.metodo_pago = metodo_pago
         
         # Liberar espacio
         if ticket.espacio:
@@ -192,7 +202,8 @@ def registrar_salida(ticket_id):
             "ticket": ticket.to_dict(),
             "tiempo_estancia_horas": round(horas, 2),
             "monto": monto,
-            "monto_formateado": f"RD${monto:,.2f}"  # ⭐ Formato con RD$
+            "monto_formateado": f"RD${monto:,.2f}",
+            "metodo_pago": metodo_pago
         }), 200
         
     except Exception as e:
@@ -201,6 +212,8 @@ def registrar_salida(ticket_id):
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+
 
 
 # ===== FUNCIONES AUXILIARES =====
@@ -238,9 +251,9 @@ def calcular_monto(horas, tipo_vehiculo):
     Calcula el monto a cobrar según horas y tipo de vehículo
     
     Tarifas en Pesos Dominicanos (RD$):
-    - Moto: RD$5.00 por hora
-    - Regular: RD$10.00 por hora
-    - Discapacitado: RD$8.00 por hora
+    - Moto: RD$25.00 por hora
+    - Regular: RD$50.00 por hora
+    - Discapacitado: RD$80.00 por hora
     """
     # Tarifas por hora (en RD$)
     tarifas = {
@@ -249,7 +262,7 @@ def calcular_monto(horas, tipo_vehiculo):
         'discapacitado': 80.0
     }
     
-    tarifa_por_hora = tarifas.get(tipo_vehiculo, 10.0)
+    tarifa_por_hora = tarifas.get(tipo_vehiculo, 50.0)
     
     # Mínimo 1 hora
     if horas < 1:

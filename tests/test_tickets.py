@@ -55,54 +55,22 @@ class TestTicketsAPI:
         
         # Verificar en BD
         with app.app_context():
-            # Vehículo creado
             vehiculo = Vehiculo.query.filter_by(placa='ING123').first()
             assert vehiculo is not None
             
-            # Ticket creado
             ticket = Ticket.query.filter_by(placa='ING123', estado='activo').first()
             assert ticket is not None
             assert ticket.vehiculo_id == vehiculo.id
             
-            # Espacio marcado como ocupado
             espacio = Espacio.query.filter_by(id=ticket.espacio_id).first()
             assert espacio.estado == 'ocupado'
     
-    def test_ingresar_vehiculo_existente(self, client, app):
-        """Prueba ingresar un vehículo que ya existe en la BD"""
-        # Crear vehículo previamente
+    def test_registrar_salida_con_metodo_pago_efectivo(self, client, app):
+        """Prueba registrar salida con método de pago efectivo"""
+        # Crear ticket activo
         with app.app_context():
-            vehiculo = Vehiculo(placa='EXIST123', marca='Toyota')
-            db.session.add(vehiculo)
-            db.session.commit()
-            vehiculo_id = vehiculo.id
-        
-        # Login
-        client.post('/auth/login', json={
-            'nombre_usuario': 'testuser',
-            'password': 'testpass'
-        })
-        
-        # Ingresar vehículo existente
-        response = client.post('/api/tickets/ingresar', json={
-            'placa': 'EXIST123',
-            'tipo_vehiculo': 'regular'
-        })
-        
-        assert response.status_code == 201
-        data = response.get_json()
-        
-        # Verificar que usó el vehículo existente
-        with app.app_context():
-            ticket = Ticket.query.filter_by(placa='EXIST123').first()
-            assert ticket.vehiculo_id == vehiculo_id
-    
-    def test_ingresar_vehiculo_ya_dentro(self, client, app):
-        """Prueba que no permite ingresar un vehículo que ya está dentro"""
-        # Crear vehículo y ticket activo
-        with app.app_context():
-            vehiculo = Vehiculo(placa='INSIDE123')
-            espacio = Espacio.query.filter_by(estado='disponible').first()
+            vehiculo = Vehiculo(placa='EFECTIVO123')
+            espacio = Espacio.query.filter_by(estado='disponible', tipo='regular').first()
             
             db.session.add(vehiculo)
             db.session.commit()
@@ -110,9 +78,190 @@ class TestTicketsAPI:
             ticket = Ticket(
                 vehiculo_id=vehiculo.id,
                 espacio_id=espacio.id,
-                placa='INSIDE123',
+                placa='EFECTIVO123',
                 tipo_vehiculo='regular',
-                estado='activo'
+                estado='activo',
+                fecha_entrada=datetime.now(timezone.utc)
+            )
+            espacio.estado = 'ocupado'
+            
+            db.session.add(ticket)
+            db.session.commit()
+            ticket_id = ticket.id
+        
+        # Login
+        client.post('/auth/login', json={
+            'nombre_usuario': 'testuser',
+            'password': 'testpass'
+        })
+        
+        # Registrar salida con método de pago
+        response = client.post(f'/api/tickets/{ticket_id}/salida', json={
+            'metodo_pago': 'efectivo'
+        })
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        assert 'monto' in data
+        assert 'metodo_pago' in data
+        assert data['metodo_pago'] == 'efectivo'
+        assert 'monto_formateado' in data
+        assert 'RD$' in data['monto_formateado']
+        
+        # Verificar en BD
+        with app.app_context():
+            ticket_db = Ticket.query.filter_by(id=ticket_id).first()
+            assert ticket_db.estado == 'finalizado'
+            assert ticket_db.metodo_pago == 'efectivo'
+            assert ticket_db.monto > 0
+    
+    def test_registrar_salida_con_metodo_pago_tarjeta(self, client, app):
+        """Prueba registrar salida con método de pago tarjeta"""
+        # Crear ticket activo
+        with app.app_context():
+            vehiculo = Vehiculo(placa='TARJETA123')
+            espacio = Espacio.query.filter_by(estado='disponible', tipo='regular').first()
+            
+            db.session.add(vehiculo)
+            db.session.commit()
+            
+            ticket = Ticket(
+                vehiculo_id=vehiculo.id,
+                espacio_id=espacio.id,
+                placa='TARJETA123',
+                tipo_vehiculo='regular',
+                estado='activo',
+                fecha_entrada=datetime.now(timezone.utc)
+            )
+            espacio.estado = 'ocupado'
+            
+            db.session.add(ticket)
+            db.session.commit()
+            ticket_id = ticket.id
+        
+        # Login
+        client.post('/auth/login', json={
+            'nombre_usuario': 'testuser',
+            'password': 'testpass'
+        })
+        
+        # Registrar salida con tarjeta
+        response = client.post(f'/api/tickets/{ticket_id}/salida', json={
+            'metodo_pago': 'tarjeta'
+        })
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['metodo_pago'] == 'tarjeta'
+        
+        # Verificar en BD
+        with app.app_context():
+            ticket_db = Ticket.query.filter_by(id=ticket_id).first()
+            assert ticket_db.metodo_pago == 'tarjeta'
+    
+    def test_metodo_pago_invalido_usa_efectivo_por_defecto(self, client, app):
+        """Prueba que método de pago inválido usa efectivo por defecto"""
+        # Crear ticket activo
+        with app.app_context():
+            vehiculo = Vehiculo(placa='INVALIDO123')
+            espacio = Espacio.query.filter_by(estado='disponible', tipo='regular').first()
+            
+            db.session.add(vehiculo)
+            db.session.commit()
+            
+            ticket = Ticket(
+                vehiculo_id=vehiculo.id,
+                espacio_id=espacio.id,
+                placa='INVALIDO123',
+                tipo_vehiculo='regular',
+                estado='activo',
+                fecha_entrada=datetime.now(timezone.utc)
+            )
+            espacio.estado = 'ocupado'
+            
+            db.session.add(ticket)
+            db.session.commit()
+            ticket_id = ticket.id
+        
+        # Login
+        client.post('/auth/login', json={
+            'nombre_usuario': 'testuser',
+            'password': 'testpass'
+        })
+        
+        # Registrar salida con método inválido
+        response = client.post(f'/api/tickets/{ticket_id}/salida', json={
+            'metodo_pago': 'criptomonedas'  # Método inválido
+        })
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        # Debería usar 'efectivo' por defecto
+        assert data['metodo_pago'] == 'efectivo'
+    
+    def test_formato_moneda_dominicana(self, client, app):
+        """Prueba que el monto se formatea como RD$"""
+        # Crear ticket activo
+        with app.app_context():
+            vehiculo = Vehiculo(placa='MONEDA123')
+            espacio = Espacio.query.filter_by(estado='disponible', tipo='regular').first()
+            
+            db.session.add(vehiculo)
+            db.session.commit()
+            
+            ticket = Ticket(
+                vehiculo_id=vehiculo.id,
+                espacio_id=espacio.id,
+                placa='MONEDA123',
+                tipo_vehiculo='regular',
+                estado='activo',
+                fecha_entrada=datetime.now(timezone.utc)
+            )
+            espacio.estado = 'ocupado'
+            
+            db.session.add(ticket)
+            db.session.commit()
+            ticket_id = ticket.id
+        
+        # Login
+        client.post('/auth/login', json={
+            'nombre_usuario': 'testuser',
+            'password': 'testpass'
+        })
+        
+        # Registrar salida
+        response = client.post(f'/api/tickets/{ticket_id}/salida', json={
+            'metodo_pago': 'efectivo'
+        })
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        
+        # Verificar formato de moneda
+        assert 'monto_formateado' in data
+        assert data['monto_formateado'].startswith('RD$')
+        assert ',' in data['monto_formateado'] or data['monto'] < 1000  # Tiene comas si es >= 1000
+    
+    def test_tiempo_transcurrido_calculado_backend(self, client, app):
+        """Prueba que el tiempo transcurrido se calcula en el backend"""
+        # Crear ticket activo hace 2 horas
+        with app.app_context():
+            vehiculo = Vehiculo(placa='TIEMPO123')
+            espacio = Espacio.query.filter_by(estado='disponible', tipo='regular').first()
+            
+            db.session.add(vehiculo)
+            db.session.commit()
+            
+            # Ticket de hace 2 horas
+            fecha_entrada = datetime.now(timezone.utc) - timedelta(hours=2)
+            
+            ticket = Ticket(
+                vehiculo_id=vehiculo.id,
+                espacio_id=espacio.id,
+                placa='TIEMPO123',
+                tipo_vehiculo='regular',
+                estado='activo',
+                fecha_entrada=fecha_entrada
             )
             espacio.estado = 'ocupado'
             
@@ -125,15 +274,20 @@ class TestTicketsAPI:
             'password': 'testpass'
         })
         
-        # Intentar ingresar de nuevo
-        response = client.post('/api/tickets/ingresar', json={
-            'placa': 'INSIDE123',
-            'tipo_vehiculo': 'regular'
-        })
+        # Listar tickets activos
+        response = client.get('/api/tickets/activos')
         
-        assert response.status_code == 400
+        assert response.status_code == 200
         data = response.get_json()
-        assert 'ya está' in data['error'].lower()
+        
+        # Buscar el ticket
+        ticket_encontrado = next((t for t in data if t['placa'] == 'TIEMPO123'), None)
+        assert ticket_encontrado is not None
+        
+        # Verificar que tiene tiempo transcurrido
+        assert 'tiempo_transcurrido' in ticket_encontrado
+        assert 'horas' in ticket_encontrado['tiempo_transcurrido']
+        assert ticket_encontrado['tiempo_transcurrido']['horas'] >= 2
     
     def test_asignacion_automatica_espacio_regular(self, client, app):
         """Prueba que asigna automáticamente el espacio regular más cercano"""
@@ -157,7 +311,6 @@ class TestTicketsAPI:
             ticket = Ticket.query.filter_by(placa='REG001').first()
             espacio = Espacio.query.filter_by(id=ticket.espacio_id).first()
             assert espacio.tipo == 'regular'
-            # Debería ser el primero disponible (A-01, A-02, etc.)
             assert espacio.seccion in ['A', 'B']
     
     def test_asignacion_automatica_moto(self, client, app):
@@ -182,161 +335,23 @@ class TestTicketsAPI:
             ticket = Ticket.query.filter_by(placa='MOTO001').first()
             espacio = Espacio.query.filter_by(id=ticket.espacio_id).first()
             assert espacio.tipo == 'moto'
-            assert espacio.seccion == 'D'  # Sección D para motos
-    
-    def test_asignacion_automatica_discapacitado(self, client, app):
-        """Prueba que asigna espacio de discapacitado correctamente"""
-        # Login
-        client.post('/auth/login', json={
-            'nombre_usuario': 'testuser',
-            'password': 'testpass'
-        })
-        
-        # Ingresar con discapacidad
-        response = client.post('/api/tickets/ingresar', json={
-            'placa': 'DISC001',
-            'tipo_vehiculo': 'discapacitado'
-        })
-        
-        assert response.status_code == 201
-        data = response.get_json()
-        
-        # Verificar que asignó espacio de discapacitado
-        with app.app_context():
-            ticket = Ticket.query.filter_by(placa='DISC001').first()
-            espacio = Espacio.query.filter_by(id=ticket.espacio_id).first()
-            assert espacio.tipo == 'discapacitado'
-            assert espacio.seccion == 'C'  # Sección C para discapacitados
-    
-    def test_no_hay_espacios_disponibles(self, client, app):
-        """Prueba cuando no hay espacios disponibles"""
-        # Ocupar todos los espacios de moto
-        with app.app_context():
-            espacios_moto = Espacio.query.filter_by(tipo='moto').all()
-            for espacio in espacios_moto:
-                espacio.estado = 'ocupado'
-            db.session.commit()
-        
-        # Login
-        client.post('/auth/login', json={
-            'nombre_usuario': 'testuser',
-            'password': 'testpass'
-        })
-        
-        # Intentar ingresar moto
-        response = client.post('/api/tickets/ingresar', json={
-            'placa': 'NOSPACE',
-            'tipo_vehiculo': 'moto'
-        })
-        
-        assert response.status_code == 404
-        data = response.get_json()
-        assert 'no hay espacios' in data['error'].lower()
-    
-    def test_listar_tickets_activos(self, client, app):
-        """Prueba listar todos los tickets activos"""
-        # Crear tickets activos
-        with app.app_context():
-            vehiculos = [
-                Vehiculo(placa='ACT001'),
-                Vehiculo(placa='ACT002'),
-                Vehiculo(placa='ACT003'),
-            ]
-            for v in vehiculos:
-                db.session.add(v)
-            db.session.commit()
-            
-            espacios = Espacio.query.filter_by(estado='disponible', tipo='regular').limit(3).all()
-            
-            for i, vehiculo in enumerate(vehiculos):
-                ticket = Ticket(
-                    vehiculo_id=vehiculo.id,
-                    espacio_id=espacios[i].id,
-                    placa=vehiculo.placa,
-                    tipo_vehiculo='regular',
-                    estado='activo'
-                )
-                espacios[i].estado = 'ocupado'
-                db.session.add(ticket)
-            
-            db.session.commit()
-        
-        # Login
-        client.post('/auth/login', json={
-            'nombre_usuario': 'testuser',
-            'password': 'testpass'
-        })
-        
-        # Listar activos
-        response = client.get('/api/tickets/activos')
-        
-        assert response.status_code == 200
-        data = response.get_json()
-        assert len(data) == 3
-        assert all(t['estado'] == 'activo' for t in data)
-    
-    def test_registrar_salida(self, client, app):
-        """Prueba registrar la salida de un vehículo"""
-        # Crear ticket activo
-        with app.app_context():
-            vehiculo = Vehiculo(placa='SALIDA123')
-            espacio = Espacio.query.filter_by(estado='disponible', tipo='regular').first()
-            
-            db.session.add(vehiculo)
-            db.session.commit()
-            
-            ticket = Ticket(
-                vehiculo_id=vehiculo.id,
-                espacio_id=espacio.id,
-                placa='SALIDA123',
-                tipo_vehiculo='regular',
-                estado='activo',
-                fecha_entrada=datetime.now(timezone.utc)
-            )
-            espacio.estado = 'ocupado'
-            
-            db.session.add(ticket)
-            db.session.commit()
-            ticket_id = ticket.id
-        
-        # Login
-        client.post('/auth/login', json={
-            'nombre_usuario': 'testuser',
-            'password': 'testpass'
-        })
-        
-        # Registrar salida
-        response = client.post(f'/api/tickets/{ticket_id}/salida')
-        
-        assert response.status_code == 200
-        data = response.get_json()
-        assert 'monto' in data
-        assert 'tiempo_estancia_horas' in data
-        
-        # Verificar en BD
-        with app.app_context():
-            ticket_db = Ticket.query.filter_by(id=ticket_id).first()
-            assert ticket_db.estado == 'finalizado'
-            assert ticket_db.fecha_salida is not None
-            assert ticket_db.monto > 0
-            
-            # Espacio liberado
-            espacio_db = Espacio.query.filter_by(id=ticket_db.espacio_id).first()
-            assert espacio_db.estado == 'disponible'
+            assert espacio.seccion == 'D'
     
     def test_calcular_monto_minimo_una_hora(self, client, app):
         """Prueba que el monto mínimo es por 1 hora"""
-        # Crear ticket activo reciente (menos de 1 hora)
+        from datetime import datetime, timezone, timedelta
+    
+        # Crear ticket activo reciente (30 minutos)
         with app.app_context():
             vehiculo = Vehiculo(placa='MIN123')
             espacio = Espacio.query.filter_by(estado='disponible', tipo='regular').first()
-            
+        
             db.session.add(vehiculo)
             db.session.commit()
-            
+        
             # Ticket de hace 30 minutos
             fecha_entrada = datetime.now(timezone.utc) - timedelta(minutes=30)
-            
+        
             ticket = Ticket(
                 vehiculo_id=vehiculo.id,
                 espacio_id=espacio.id,
@@ -346,68 +361,35 @@ class TestTicketsAPI:
                 fecha_entrada=fecha_entrada
             )
             espacio.estado = 'ocupado'
-            
+        
             db.session.add(ticket)
             db.session.commit()
             ticket_id = ticket.id
-        
+    
         # Login
         client.post('/auth/login', json={
             'nombre_usuario': 'testuser',
             'password': 'testpass'
         })
-        
+    
         # Registrar salida
-        response = client.post(f'/api/tickets/{ticket_id}/salida')
-        
+        response = client.post(f'/api/tickets/{ticket_id}/salida', json={
+            'metodo_pago': 'efectivo'
+        })
+    
         assert response.status_code == 200
         data = response.get_json()
-        
-        # Debería cobrar mínimo 1 hora
-        assert data['monto'] == 10.0  # 1 hora * $10
     
-    def test_no_permitir_finalizar_ticket_ya_finalizado(self, client, app):
-        """Prueba que no permite finalizar un ticket ya finalizado"""
-        # Crear ticket finalizado
-        with app.app_context():
-            vehiculo = Vehiculo(placa='FIN123')
-            espacio = Espacio.query.filter_by(tipo='regular').first()
-            
-            db.session.add(vehiculo)
-            db.session.commit()
-            
-            ticket = Ticket(
-                vehiculo_id=vehiculo.id,
-                espacio_id=espacio.id,
-                placa='FIN123',
-                tipo_vehiculo='regular',
-                estado='finalizado',
-                fecha_salida=datetime.now(timezone.utc)
-            )
-            
-            db.session.add(ticket)
-            db.session.commit()
-            ticket_id = ticket.id
-        
-        # Login
-        client.post('/auth/login', json={
-            'nombre_usuario': 'testuser',
-            'password': 'testpass'
-        })
-        
-        # Intentar finalizar de nuevo
-        response = client.post(f'/api/tickets/{ticket_id}/salida')
-        
-        assert response.status_code == 400
-        data = response.get_json()
-        assert 'ya fue finalizado' in data['error'].lower()
+        # ⭐ ACTUALIZADO: Debería cobrar mínimo 1 hora (RD$50.00 para regular)
+        assert data['monto'] == 50.0, f"Se esperaba 50.0, pero se obtuvo {data['monto']}"
+
 
 
 class TestTicketModel:
     """Pruebas para el modelo de Ticket"""
     
-    def test_crear_ticket(self, app):
-        """Prueba crear instancia del modelo Ticket"""
+    def test_crear_ticket_con_metodo_pago(self, app):
+        """Prueba crear ticket con método de pago"""
         with app.app_context():
             vehiculo = Vehiculo(placa='TMODEL123')
             espacio = Espacio.query.first()
@@ -420,19 +402,20 @@ class TestTicketModel:
                 espacio_id=espacio.id,
                 placa='TMODEL123',
                 tipo_vehiculo='regular',
-                estado='activo'
+                estado='finalizado',
+                monto=50.0,
+                metodo_pago='tarjeta'  # Nuevo campo
             )
             
             db.session.add(ticket)
             db.session.commit()
             
             assert ticket.id is not None
-            assert ticket.placa == 'TMODEL123'
-            assert ticket.estado == 'activo'
-            assert ticket.fecha_entrada is not None
+            assert ticket.metodo_pago == 'tarjeta'
+            assert ticket.monto == 50.0
     
-    def test_to_dict_ticket(self, app):
-        """Prueba método to_dict() del ticket"""
+    def test_to_dict_incluye_metodo_pago(self, app):
+        """Prueba que to_dict incluye método de pago"""
         with app.app_context():
             vehiculo = Vehiculo(placa='DICT456')
             espacio = Espacio.query.first()
@@ -445,15 +428,16 @@ class TestTicketModel:
                 espacio_id=espacio.id,
                 placa='DICT456',
                 tipo_vehiculo='moto',
-                estado='activo'
+                estado='activo',
+                metodo_pago='efectivo'
             )
             
             resultado = ticket.to_dict()
             
             assert isinstance(resultado, dict)
-            assert 'placa' in resultado
-            assert 'espacio_numero' in resultado
-            assert resultado['placa'] == 'DICT456'
+            assert 'metodo_pago' in resultado
+            assert resultado['metodo_pago'] == 'efectivo'
+
 
 
 

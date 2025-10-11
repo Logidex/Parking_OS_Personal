@@ -1,53 +1,66 @@
 import pytest
 from app.models.usuario import Usuario
+from app.extensions import db as _db
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 class TestUsuarioModel:
-    """Suite de pruebas para el modelo Usuario"""
+    """Pruebas para el modelo Usuario"""
     
     def test_create_user(self, app):
         """Prueba crear un usuario"""
         with app.app_context():
-            from app.extensions import db
-            
             usuario = Usuario(
-                nombre_usuario='nuevo_usuario',
-                password=generate_password_hash('password123'),
-                rol='operador',
-                activo=True
+                nombre_usuario='newuser',
+                contraseña=generate_password_hash('newpass'),
+                rol='usuario'
             )
-            db.session.add(usuario)
-            db.session.commit()
+            _db.session.add(usuario)
+            _db.session.commit()
             
-            # Verificar que se guardó
-            usuario_db = Usuario.query.filter_by(nombre_usuario='nuevo_usuario').first()
-            assert usuario_db is not None
-            assert usuario_db.rol == 'operador'
-            assert usuario_db.activo == True
+            assert usuario.id is not None
+            assert usuario.nombre_usuario == 'newuser'
     
     def test_password_hashing(self, app):
-        """Prueba que las contraseñas se hashean correctamente"""
+        """Prueba que la contraseña se guarda hasheada"""
         with app.app_context():
-            password = 'supersecreta'
-            hashed = generate_password_hash(password)
+            password_plain = 'securepass'
+            usuario = Usuario(
+                nombre_usuario='hashuser',
+                contraseña=generate_password_hash(password_plain),
+                rol='usuario'
+            )
             
-            assert hashed != password  # No debe ser igual a la original
-            assert check_password_hash(hashed, password)  # Debe verificar correctamente
+            # Verificar que el hash es diferente al texto plano
+            assert usuario.contraseña != password_plain
+            
+            # Verificar que el hash funciona correctamente
+            assert check_password_hash(usuario.contraseña, password_plain) is True
+            assert check_password_hash(usuario.contraseña, 'wrongpass') is False
     
     def test_unique_username(self, app):
-        """Prueba que no se pueden crear usuarios con mismo nombre"""
+        """Prueba que el nombre de usuario debe ser único"""
         with app.app_context():
-            from app.extensions import db
-            from sqlalchemy.exc import IntegrityError
-            
-            # Ya existe 'testuser' del fixture
-            usuario = Usuario(
-                nombre_usuario='testuser',
-                password=generate_password_hash('otropass'),
-                rol='admin',
-                activo=True
+            # Crear primer usuario
+            usuario1 = Usuario(
+                nombre_usuario='uniqueuser',
+                contraseña=generate_password_hash('pass1'),
+                rol='usuario'
             )
-            db.session.add(usuario)
+            _db.session.add(usuario1)
+            _db.session.commit()
             
-            with pytest.raises(IntegrityError):
-                db.session.commit()
+            # Intentar crear otro con el mismo nombre
+            usuario2 = Usuario(
+                nombre_usuario='uniqueuser',
+                contraseña=generate_password_hash('pass2'),
+                rol='usuario'
+            )
+            _db.session.add(usuario2)
+            
+            # Debería fallar
+            with pytest.raises(Exception):
+                _db.session.commit()
+
+
+

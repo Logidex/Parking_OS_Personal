@@ -24,7 +24,7 @@ def login():
     if not usuario:
         return jsonify({"error": "Usuario no encontrado"}), 401
     
-    if not check_password_hash(usuario.password, password):
+    if not check_password_hash(usuario.contraseña, password):
         return jsonify({"error": "Contraseña incorrecta"}), 401
 
     # IMPORTANTE: Convertir el ID a string

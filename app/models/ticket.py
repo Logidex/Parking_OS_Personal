@@ -14,7 +14,6 @@ class Ticket(db.Model):
     placa = db.Column(db.String(20), nullable=False)
     
     # Información del ticket
-    # ⭐ FIX: Usar lambda con timezone.utc
     fecha_entrada = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     fecha_salida = db.Column(db.DateTime, nullable=True)
     
@@ -23,6 +22,7 @@ class Ticket(db.Model):
     
     # Cobro
     monto = db.Column(db.Float, default=0.0)
+    metodo_pago = db.Column(db.String(20), nullable=True)  # ⭐ NUEVO: efectivo, tarjeta, transferencia
     
     # Información adicional
     tipo_vehiculo = db.Column(db.String(20))
@@ -45,7 +45,9 @@ class Ticket(db.Model):
             'fecha_salida': self.fecha_salida.isoformat() if self.fecha_salida else None,
             'estado': self.estado,
             'monto': self.monto,
+            'metodo_pago': self.metodo_pago,  # ⭐ NUEVO
             'tipo_vehiculo': self.tipo_vehiculo
         }
+
 
 
