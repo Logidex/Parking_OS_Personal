@@ -6,6 +6,7 @@ from app.models.espacio import Espacio
 from app.models.ticket import Ticket
 from app.extensions import db
 from datetime import datetime, timezone
+import math
 
 tickets_bp = Blueprint('tickets', __name__)
 
@@ -39,7 +40,7 @@ def listar_tickets_activos():
         for ticket in tickets:
             ticket_dict = ticket.to_dict()
             
-            # ⭐ AGREGAR: Calcular tiempo transcurrido en el backend
+            # Calcular tiempo transcurrido en el backend
             if ticket.fecha_entrada:
                 fecha_entrada = ticket.fecha_entrada
                 if fecha_entrada.tzinfo is None:
@@ -48,7 +49,6 @@ def listar_tickets_activos():
                 ahora = datetime.now(timezone.utc)
                 tiempo_transcurrido = ahora - fecha_entrada
                 
-                # Convertir a horas y minutos
                 total_minutos = int(tiempo_transcurrido.total_seconds() / 60)
                 horas = total_minutos // 60
                 minutos = total_minutos % 60
@@ -76,7 +76,6 @@ def listar_tickets_activos():
         return jsonify({"error": str(e)}), 500
 
 
-
 @tickets_bp.route('/api/tickets/ingresar', methods=['POST'])
 @jwt_required()
 def ingresar_vehiculo():
@@ -89,7 +88,7 @@ def ingresar_vehiculo():
             return jsonify({"error": "La placa es requerida"}), 400
         
         placa = data['placa'].strip().upper()
-        tipo_vehiculo = data.get('tipo_vehiculo', 'regular')  # regular, moto, discapacitado
+        tipo_vehiculo = data.get('tipo_vehiculo', 'regular')
         
         # Buscar o crear vehículo
         vehiculo = Vehiculo.query.filter_by(placa=placa).first()
@@ -166,16 +165,15 @@ def registrar_salida(ticket_id):
         # Calcular tiempo de estancia
         fecha_salida = datetime.now(timezone.utc)
         
-        # ⭐ FIX: Asegurar que fecha_entrada tenga timezone
+        # Asegurar que fecha_entrada tenga timezone
         fecha_entrada = ticket.fecha_entrada
         if fecha_entrada.tzinfo is None:
-            # Si no tiene timezone, asumimos que es UTC
             fecha_entrada = fecha_entrada.replace(tzinfo=timezone.utc)
         
         tiempo_estancia = fecha_salida - fecha_entrada
         horas = tiempo_estancia.total_seconds() / 3600
         
-        # Calcular monto (ejemplo: $10 por hora)
+        # Calcular monto
         monto = calcular_monto(horas, ticket.tipo_vehiculo)
         
         # Actualizar ticket
@@ -193,14 +191,16 @@ def registrar_salida(ticket_id):
             "mensaje": "Salida registrada exitosamente",
             "ticket": ticket.to_dict(),
             "tiempo_estancia_horas": round(horas, 2),
-            "monto": monto
+            "monto": monto,
+            "monto_formateado": f"RD${monto:,.2f}"  # ⭐ Formato con RD$
         }), 200
         
     except Exception as e:
         db.session.rollback()
         print(f"❌ Error al registrar salida: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
 
 
 # ===== FUNCIONES AUXILIARES =====
@@ -208,10 +208,8 @@ def registrar_salida(ticket_id):
 def buscar_espacio_disponible(tipo_vehiculo):
     """
     Busca el espacio disponible más cercano según el tipo de vehículo
-    Prioridad: espacios con números más bajos (más cercanos)
     """
     if tipo_vehiculo == 'moto':
-        # Buscar en espacios de moto (sección D)
         espacio = Espacio.query.filter_by(
             tipo='moto',
             estado='disponible',
@@ -219,7 +217,6 @@ def buscar_espacio_disponible(tipo_vehiculo):
         ).order_by(Espacio.numero).first()
         
     elif tipo_vehiculo == 'discapacitado':
-        # Buscar en espacios para discapacitados (sección C)
         espacio = Espacio.query.filter_by(
             tipo='discapacitado',
             estado='disponible',
@@ -227,7 +224,6 @@ def buscar_espacio_disponible(tipo_vehiculo):
         ).order_by(Espacio.numero).first()
         
     else:
-        # Buscar en espacios regulares (secciones A y B)
         espacio = Espacio.query.filter_by(
             tipo='regular',
             estado='disponible',
@@ -240,12 +236,17 @@ def buscar_espacio_disponible(tipo_vehiculo):
 def calcular_monto(horas, tipo_vehiculo):
     """
     Calcula el monto a cobrar según horas y tipo de vehículo
+    
+    Tarifas en Pesos Dominicanos (RD$):
+    - Moto: RD$5.00 por hora
+    - Regular: RD$10.00 por hora
+    - Discapacitado: RD$8.00 por hora
     """
-    # Tarifas por hora
+    # Tarifas por hora (en RD$)
     tarifas = {
-        'moto': 5.0,
-        'regular': 10.0,
-        'discapacitado': 8.0
+        'moto': 25.0,
+        'regular': 50.0,
+        'discapacitado': 80.0
     }
     
     tarifa_por_hora = tarifas.get(tipo_vehiculo, 10.0)
@@ -255,8 +256,8 @@ def calcular_monto(horas, tipo_vehiculo):
         horas = 1
     
     # Redondear hacia arriba
-    import math
     horas_cobrar = math.ceil(horas)
     
     return horas_cobrar * tarifa_por_hora
+
 

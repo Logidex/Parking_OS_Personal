@@ -51,7 +51,7 @@ function mostrarTickets(tickets) {
 function crearFilaTicket(ticket) {
     const tr = document.createElement('tr');
     
-    // ⭐ Usar tiempo transcurrido calculado por el backend
+    // Usar tiempo transcurrido calculado por el backend
     const tiempoTranscurrido = ticket.tiempo_transcurrido 
         ? ticket.tiempo_transcurrido.texto 
         : 'Calculando...';
@@ -94,7 +94,6 @@ function crearFilaTicket(ticket) {
     return tr;
 }
 
-
 // ========== REGISTRAR SALIDA ==========
 async function registrarSalida(ticketId) {
     try {
@@ -133,7 +132,10 @@ async function registrarSalida(ticketId) {
             throw new Error(result2.error || 'Error al registrar salida');
         }
         
-        // Mostrar resumen
+        // Usar formato de moneda dominicana
+        const montoFormateado = result2.monto_formateado || `RD$${result2.monto.toFixed(2)}`;
+        
+        // Mostrar resumen con formato mejorado
         Swal.fire({
             icon: 'success',
             title: '¡Salida Registrada!',
@@ -141,14 +143,40 @@ async function registrarSalida(ticketId) {
                 <div style="text-align: left; padding: 1rem;">
                     <p><strong>Placa:</strong> ${result2.ticket.placa}</p>
                     <p><strong>Tiempo de estancia:</strong> ${result2.tiempo_estancia_horas} horas</p>
-                    <h2 style="color: #2486DB; margin: 1rem 0; text-align: center;">
-                        $${result2.monto.toFixed(2)}
-                    </h2>
-                    <p style="text-align: center; color: #666;">Monto a cobrar</p>
+                    
+                    <div style="background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%); 
+                                padding: 1.5rem; 
+                                border-radius: 12px; 
+                                margin: 1.5rem 0; 
+                                border-left: 4px solid #2486DB;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h2 style="color: #2486DB; 
+                                   margin: 0 0 0.5rem 0; 
+                                   text-align: center; 
+                                   font-size: 3rem;
+                                   font-weight: bold;">
+                            ${montoFormateado}
+                        </h2>
+                        <p style="text-align: center; 
+                                  color: #666; 
+                                  margin: 0; 
+                                  font-size: 0.95rem;
+                                  font-weight: 500;">
+                            Pesos Dominicanos
+                        </p>
+                    </div>
+                    
+                    <p style="text-align: center; 
+                              color: #28a745; 
+                              font-weight: 600;
+                              margin: 0;">
+                        <i class="fas fa-check-circle"></i> Monto a cobrar
+                    </p>
                 </div>
             `,
             confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#2486DB'
+            confirmButtonColor: '#2486DB',
+            width: '500px'
         });
         
         // Recargar tickets
@@ -173,3 +201,4 @@ function actualizarEstadisticas(tickets) {
 function capitalizarPrimeraLetra(texto) {
     return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
+
