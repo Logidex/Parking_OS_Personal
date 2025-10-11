@@ -7,26 +7,63 @@
 {% block content %}
 <div class="content-section">
   <div class="section-header">
-    <h2>Reportes del Sistema</h2>
+    <h2>📊 Reportes del Sistema</h2>
   </div>
 
   <div class="reportes-grid">
     <div class="reporte-card">
+      <div class="reporte-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <i class="fas fa-dollar-sign"></i>
+      </div>
       <h3>Ingresos por Período</h3>
-      <p>Genera reportes de ingresos diarios, semanales o mensuales</p>
-      <button class="btn-secondary">Generar</button>
+      <p>Genera reportes de ingresos diarios, semanales y mensuales con promedios por transacción</p>
+      <button class="btn-primary" id="btn-reporte-ingresos">
+        <i class="fas fa-chart-line"></i> Generar Reporte
+      </button>
     </div>
     
     <div class="reporte-card">
+      <div class="reporte-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <i class="fas fa-parking"></i>
+      </div>
       <h3>Ocupación de Espacios</h3>
-      <p>Estadísticas de uso de espacios de estacionamiento</p>
-      <button class="btn-secondary">Generar</button>
+      <p>Estadísticas de uso de espacios, tiempo promedio de estancia y ocupación por tipo</p>
+      <button class="btn-primary" id="btn-reporte-ocupacion">
+        <i class="fas fa-chart-bar"></i> Generar Reporte
+      </button>
     </div>
     
     <div class="reporte-card">
+      <div class="reporte-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+        <i class="fas fa-car"></i>
+      </div>
       <h3>Vehículos Frecuentes</h3>
-      <p>Listado de vehículos con mayor frecuencia de uso</p>
-      <button class="btn-secondary">Generar</button>
+      <p>Top 10 de vehículos con mayor frecuencia de uso y total gastado en el estacionamiento</p>
+      <button class="btn-primary" id="btn-reporte-vehiculos">
+        <i class="fas fa-list-ol"></i> Generar Reporte
+      </button>
+    </div>
+    
+    <div class="reporte-card">
+      <div class="reporte-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+        <i class="fas fa-credit-card"></i>
+      </div>
+      <h3>Métodos de Pago</h3>
+      <p>Desglose de transacciones y montos por método de pago (efectivo y tarjeta)</p>
+      <button class="btn-primary" id="btn-reporte-metodos-pago">
+        <i class="fas fa-money-check-alt"></i> Generar Reporte
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="content-section" style="margin-top: 2rem;">
+  <div class="info-banner">
+    <i class="fas fa-info-circle"></i>
+    <div>
+      <h4>Información sobre Reportes</h4>
+      <p>Los reportes se generan en tiempo real basados en los datos actuales del sistema. 
+         Puedes generar cualquier reporte las veces que necesites.</p>
     </div>
   </div>
 </div>
@@ -35,3 +72,4 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/reportes.js') }}"></script>
 {% endblock %}
+
