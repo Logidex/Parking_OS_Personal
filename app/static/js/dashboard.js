@@ -188,23 +188,6 @@ function mostrarOcupacionPorTipo(ocupacion) {
     `;
 }
 
-// ========== LOGOUT ==========
-document.getElementById('logout-btn')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    
-    try {
-        const response = await fetch('/auth/logout', {
-            method: 'POST'
-        });
-        
-        if (response.ok) {
-            window.location.href = '/auth/';
-        }
-    } catch (error) {
-        console.error('Error al cerrar sesión:', error);
-    }
-});
-
 
 
 
